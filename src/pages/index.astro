@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BlogCard from '../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+);
+const featuredPosts = allPosts.slice(0, 3);
+const recentPosts = allPosts.slice(0, 6);
+
+const services = [
+  { icon: '📊', title: 'Data Engineering', description: 'Design and build scalable data pipelines, warehouses, and lakes that power your analytics.' },
+  { icon: '🤖', title: 'AI & ML Solutions', description: 'Implement machine learning models and AI-powered automation for your business processes.' },
+  { icon: '☁️', title: 'Cloud Architecture', description: 'Architect and migrate to cloud-native solutions on AWS, Azure, or GCP.' },
+  { icon: '🔄', title: 'Digital Transformation', description: 'Guide your organization through technology-driven business transformation.' },
+];
+---
+
+<BaseLayout title="Home">
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-primary-dark via-primary to-primary-light text-white overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-20 left-10 w-72 h-72 bg-secondary rounded-full filter blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-96 h-96 bg-accent rounded-full filter blur-3xl"></div>
+    </div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up">
+          Technology Insights for the <span class="text-secondary">Modern Enterprise</span>
+        </h1>
+        <p class="text-lg sm:text-xl text-white/80 mb-8 leading-relaxed animate-fade-in-up" style="animation-delay: 0.1s">
+          Expert perspectives on data engineering, AI/ML, cloud architecture, and digital transformation. Practical knowledge to help you build better solutions.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style="animation-delay: 0.2s">
+          <a href="/blog" class="px-8 py-4 bg-secondary text-white rounded-lg font-semibold text-center hover:bg-secondary-light transition-colors">
+            Read the Blog
+          </a>
+          <a href="/consulting" class="px-8 py-4 bg-white/10 text-white border border-white/30 rounded-lg font-semibold text-center hover:bg-white/20 transition-colors">
+            Consulting Services
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Posts Carousel -->
+  <section class="py-16 sm:py-20 bg-surface" aria-labelledby="featured-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <h2 id="featured-heading" class="text-2xl sm:text-3xl font-bold text-text-dark">Featured Articles</h2>
+          <p class="text-text-light mt-2">Latest insights and thought leadership</p>
+        </div>
+        <a href="/blog" class="hidden sm:inline-flex items-center gap-2 text-primary font-medium hover:text-secondary transition-colors">
+          View all
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </a>
+      </div>
+
+      <!-- Carousel -->
+      <div class="relative">
+        <div class="carousel-container" id="featured-carousel">
+          <div class="carousel-track" id="carousel-track">
+            {featuredPosts.map((post) => (
+              <div class="min-w-full sm:min-w-[50%] lg:min-w-[33.333%] px-3">
+                <BlogCard
+                  title={post.data.title}
+                  description={post.data.description}
+                  pubDate={post.data.pubDate}
+                  heroImage={post.data.heroImage}
+                  category={post.data.category}
+                  slug={post.id}
+                  readingTime={post.data.readingTime}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="flex justify-center gap-2 mt-6">
+          <button id="carousel-prev" class="w-10 h-10 rounded-full bg-white border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors" aria-label="Previous slide">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          </button>
+          <button id="carousel-next" class="w-10 h-10 rounded-full bg-white border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary transition-colors" aria-label="Next slide">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Overview -->
+  <section class="py-16 sm:py-20" aria-labelledby="services-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 id="services-heading" class="text-2xl sm:text-3xl font-bold text-text-dark">How I Can Help</h2>
+        <p class="text-text-light mt-2 max-w-2xl mx-auto">Leveraging deep technical expertise to solve complex business challenges</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {services.map(({ icon, title, description }) => (
+          <a href="/consulting" class="group p-6 rounded-xl border border-border hover:border-primary hover:shadow-lg transition-all">
+            <div class="text-3xl mb-4">{icon}</div>
+            <h3 class="text-lg font-semibold text-text-dark mb-2 group-hover:text-primary transition-colors">{title}</h3>
+            <p class="text-sm text-text-light">{description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Posts -->
+  <section class="py-16 sm:py-20 bg-surface" aria-labelledby="recent-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between mb-10">
+        <div>
+          <h2 id="recent-heading" class="text-2xl sm:text-3xl font-bold text-text-dark">Recent Posts</h2>
+          <p class="text-text-light mt-2">Stay current with the latest thinking</p>
+        </div>
+        <a href="/blog" class="hidden sm:inline-flex items-center gap-2 text-primary font-medium hover:text-secondary transition-colors">
+          View all posts
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {recentPosts.map((post) => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            heroImage={post.data.heroImage}
+            category={post.data.category}
+            slug={post.id}
+            readingTime={post.data.readingTime}
+          />
+        ))}
+      </div>
+      <div class="text-center mt-10 sm:hidden">
+        <a href="/blog" class="inline-flex items-center gap-2 text-primary font-medium">
+          View all posts
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter CTA -->
+  <section class="py-16 sm:py-20 bg-primary text-white" aria-labelledby="newsletter-heading">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 id="newsletter-heading" class="text-2xl sm:text-3xl font-bold mb-4">Never Miss an Insight</h2>
+      <p class="text-white/80 mb-8">Join the newsletter and get expert insights delivered directly to your inbox. No spam, just valuable content.</p>
+      <form class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" data-newsletter-form>
+        <input type="email" placeholder="Enter your email" required
+               class="flex-1 px-4 py-3 rounded-lg text-text-dark focus:outline-none focus:ring-2 focus:ring-secondary" />
+        <button type="submit" class="px-6 py-3 bg-secondary text-white rounded-lg font-semibold hover:bg-secondary-light transition-colors whitespace-nowrap">
+          Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    // Carousel functionality
+    const track = document.getElementById('carousel-track');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+    let currentSlide = 0;
+
+    function getVisibleSlides() {
+      const width = window.innerWidth;
+      if (width >= 1024) return 3;
+      if (width >= 640) return 2;
+      return 1;
+    }
+
+    function updateCarousel() {
+      if (!track) return;
+      const slideWidth = 100 / getVisibleSlides();
+      track.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+    }
+
+    function getMaxSlide() {
+      const total = track?.children.length || 0;
+      return Math.max(0, total - getVisibleSlides());
+    }
+
+    prevBtn?.addEventListener('click', () => {
+      currentSlide = Math.max(0, currentSlide - 1);
+      updateCarousel();
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      currentSlide = Math.min(getMaxSlide(), currentSlide + 1);
+      updateCarousel();
+    });
+
+    window.addEventListener('resize', () => {
+      currentSlide = Math.min(currentSlide, getMaxSlide());
+      updateCarousel();
+    });
+  </script>
+</BaseLayout>

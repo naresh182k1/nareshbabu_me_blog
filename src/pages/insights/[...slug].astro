@@ -1,0 +1,64 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const insights = await getCollection('insights');
+  return insights.map((insight) => ({
+    params: { slug: insight.id },
+    props: { insight },
+  }));
+}
+
+const { insight } = Astro.props;
+const { Content } = await render(insight);
+---
+
+<BaseLayout
+  title={insight.data.title}
+  description={insight.data.description}
+  image={insight.data.heroImage}
+  type="article"
+  publishedDate={insight.data.pubDate}
+  keywords={insight.data.tags}
+>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="mb-8">
+      <ol class="flex items-center gap-2 text-sm text-text-light">
+        <li><a href="/" class="hover:text-primary">Home</a></li>
+        <li class="text-border">/</li>
+        <li><a href="/insights" class="hover:text-primary">Insights</a></li>
+        <li class="text-border">/</li>
+        <li class="text-text-dark font-medium">{insight.data.title}</li>
+      </ol>
+    </nav>
+
+    <header class="mb-10">
+      <div class="flex flex-wrap gap-2 mb-4">
+        {insight.data.category && <span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-sm font-medium">{insight.data.category}</span>}
+        {insight.data.industry && <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">{insight.data.industry}</span>}
+      </div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-text-dark leading-tight mb-4">{insight.data.title}</h1>
+      <p class="text-lg text-text-light">{insight.data.description}</p>
+      {insight.data.client && <p class="mt-4 text-sm text-text-light">Client: <span class="font-medium text-text">{insight.data.client}</span></p>}
+    </header>
+
+    {insight.data.heroImage && (
+      <div class="mb-10 rounded-xl overflow-hidden shadow-lg">
+        <img src={insight.data.heroImage} alt={insight.data.title} class="w-full h-auto object-cover" loading="eager" />
+      </div>
+    )}
+
+    <div class="prose max-w-none">
+      <Content />
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-border text-center">
+      <a href="/insights" class="inline-flex items-center gap-2 text-primary font-medium hover:text-secondary transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path></svg>
+        Back to all insights
+      </a>
+    </div>
+  </article>
+</BaseLayout>

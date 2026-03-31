@@ -1,0 +1,143 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allReports = (await getCollection('reports')).sort(
+  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+);
+---
+
+<BaseLayout
+  title="Industry Reports"
+  description="Access curated industry reports from leading research firms like Gartner and McKinsey. Download insights on data analytics, AI, cloud computing, and more."
+  keywords={['industry reports', 'Gartner', 'McKinsey', 'research', 'data analytics', 'AI reports']}
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-primary-dark to-primary text-white py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">Industry Reports</h1>
+      <p class="text-lg text-white/80 max-w-2xl">Curated reports from the world's leading research firms. Stay informed with the latest insights and trends.</p>
+    </div>
+  </section>
+
+  <!-- Reports Grid -->
+  <section class="py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {allReports.map((report) => (
+          <article class="bg-white rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all">
+            <div class="aspect-[4/3] bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-8">
+              {report.data.coverImage ? (
+                <img src={report.data.coverImage} alt={report.data.title} class="w-full h-full object-contain" loading="lazy" />
+              ) : (
+                <div class="text-center">
+                  <span class="text-5xl">📄</span>
+                  <p class="mt-2 text-sm text-text-light font-medium">{report.data.source}</p>
+                </div>
+              )}
+            </div>
+            <div class="p-6">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">{report.data.source}</span>
+                {report.data.category && (
+                  <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary">{report.data.category}</span>
+                )}
+              </div>
+              <h2 class="text-lg font-bold text-text-dark mb-2">{report.data.title}</h2>
+              <p class="text-sm text-text-light mb-4 line-clamp-3">{report.data.description}</p>
+              <button
+                class="report-download-btn w-full px-4 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-light transition-colors flex items-center justify-center gap-2"
+                data-report-title={report.data.title}
+                data-report-id={report.id}
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Download Report
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Modal -->
+  <div id="download-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-8 relative">
+      <button id="close-modal" class="absolute top-4 right-4 text-text-light hover:text-text-dark">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      <h3 class="text-xl font-bold text-text-dark mb-2">Download Report</h3>
+      <p class="text-text-light text-sm mb-6">Please provide your details to access this report.</p>
+      <form id="download-form" class="space-y-4">
+        <input type="hidden" id="report-id" name="reportId" />
+        <div>
+          <label for="dl-name" class="block text-sm font-medium text-text-dark mb-1">Full Name <span class="text-red-500">*</span></label>
+          <input type="text" id="dl-name" name="name" required class="w-full px-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
+        </div>
+        <div>
+          <label for="dl-email" class="block text-sm font-medium text-text-dark mb-1">Email <span class="text-red-500">*</span></label>
+          <input type="email" id="dl-email" name="email" required class="w-full px-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="your@email.com" />
+        </div>
+        <div>
+          <label for="dl-phone" class="block text-sm font-medium text-text-dark mb-1">Phone Number</label>
+          <input type="tel" id="dl-phone" name="phone" class="w-full px-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="+1 (555) 000-0000" />
+        </div>
+        <div>
+          <label for="dl-company" class="block text-sm font-medium text-text-dark mb-1">Company</label>
+          <input type="text" id="dl-company" name="company" class="w-full px-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your company" />
+        </div>
+        <div>
+          <label for="dl-role" class="block text-sm font-medium text-text-dark mb-1">Job Title</label>
+          <input type="text" id="dl-role" name="role" class="w-full px-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your role" />
+        </div>
+        <button type="submit" class="w-full px-4 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition-colors">
+          Access Report
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('download-modal');
+    const closeModal = document.getElementById('close-modal');
+    const downloadForm = document.getElementById('download-form') as HTMLFormElement;
+    const reportIdInput = document.getElementById('report-id') as HTMLInputElement;
+
+    document.querySelectorAll('.report-download-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const el = btn as HTMLElement;
+        if (reportIdInput) reportIdInput.value = el.dataset.reportId || '';
+        modal?.classList.remove('hidden');
+      });
+    });
+
+    closeModal?.addEventListener('click', () => modal?.classList.add('hidden'));
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.add('hidden');
+    });
+
+    downloadForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = downloadForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+      btn.textContent = 'Processing...';
+      btn.disabled = true;
+
+      // Placeholder: Replace with actual form submission and file download
+      try {
+        // const formData = new FormData(downloadForm);
+        // await fetch('/api/report-download', { method: 'POST', body: formData });
+        btn.textContent = 'Download Starting...';
+        setTimeout(() => {
+          modal?.classList.add('hidden');
+          btn.textContent = 'Access Report';
+          btn.disabled = false;
+          downloadForm.reset();
+          alert('Thank you! In production, the report download would start automatically.');
+        }, 1500);
+      } catch {
+        btn.textContent = 'Error. Try again.';
+        setTimeout(() => { btn.textContent = 'Access Report'; btn.disabled = false; }, 3000);
+      }
+    });
+  </script>
+</BaseLayout>

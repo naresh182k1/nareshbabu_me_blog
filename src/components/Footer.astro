@@ -1,0 +1,116 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-primary-dark text-white" role="contentinfo">
+  <!-- Newsletter Section -->
+  <div class="border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="max-w-2xl mx-auto text-center">
+        <h2 class="text-2xl sm:text-3xl font-bold mb-3">Stay Updated</h2>
+        <p class="text-white/70 mb-6">Get the latest insights on technology, data engineering, and digital transformation delivered to your inbox.</p>
+        <form class="flex flex-col sm:flex-row gap-3" data-newsletter-form>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            required
+            class="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+          />
+          <button type="submit" class="px-6 py-3 bg-secondary text-white rounded-lg font-semibold hover:bg-secondary-light transition-colors whitespace-nowrap">
+            Subscribe
+          </button>
+        </form>
+        <p class="text-white/40 text-xs mt-3">No spam. Unsubscribe anytime.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Links -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <!-- Brand -->
+      <div class="sm:col-span-2 lg:col-span-1">
+        <a href="/" class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-secondary text-white flex items-center justify-center font-bold text-lg">NB</div>
+          <span class="text-lg font-bold">Naresh Babu</span>
+        </a>
+        <p class="text-white/60 text-sm leading-relaxed">
+          Expert insights on technology, data engineering, AI/ML, and digital transformation to help businesses thrive in the modern era.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h3 class="font-semibold mb-4 text-white/90">Quick Links</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/blog" class="text-white/60 hover:text-secondary transition-colors">Blog</a></li>
+          <li><a href="/consulting" class="text-white/60 hover:text-secondary transition-colors">Consulting</a></li>
+          <li><a href="/insights" class="text-white/60 hover:text-secondary transition-colors">Insights & Solutions</a></li>
+          <li><a href="/reports" class="text-white/60 hover:text-secondary transition-colors">Reports</a></li>
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div>
+        <h3 class="font-semibold mb-4 text-white/90">Resources</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/contact" class="text-white/60 hover:text-secondary transition-colors">Contact Us</a></li>
+          <li><a href="/rss.xml" class="text-white/60 hover:text-secondary transition-colors">RSS Feed</a></li>
+          <li><a href="/sitemap-index.xml" class="text-white/60 hover:text-secondary transition-colors">Sitemap</a></li>
+        </ul>
+      </div>
+
+      <!-- Connect -->
+      <div>
+        <h3 class="font-semibold mb-4 text-white/90">Connect</h3>
+        <div class="flex gap-3">
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-secondary transition-colors" aria-label="LinkedIn">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-secondary transition-colors" aria-label="Twitter / X">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="mailto:hello@nareshbabu.me" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-secondary transition-colors" aria-label="Email">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Copyright -->
+  <div class="border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <p class="text-center text-white/40 text-sm">
+        &copy; {currentYear} Naresh Babu. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('[data-newsletter-form]').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formEl = e.target as HTMLFormElement;
+      const email = (formEl.querySelector('input[type="email"]') as HTMLInputElement)?.value;
+      if (!email) return;
+
+      const btn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const origText = btn.textContent;
+      btn.textContent = 'Subscribing...';
+      btn.disabled = true;
+
+      // Placeholder: Replace with actual newsletter API endpoint
+      try {
+        // await fetch('/api/subscribe', { method: 'POST', body: JSON.stringify({ email }), headers: { 'Content-Type': 'application/json' } });
+        btn.textContent = 'Subscribed!';
+        (formEl.querySelector('input[type="email"]') as HTMLInputElement).value = '';
+        setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000);
+      } catch {
+        btn.textContent = 'Error. Try again.';
+        setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000);
+      }
+    });
+  });
+</script>

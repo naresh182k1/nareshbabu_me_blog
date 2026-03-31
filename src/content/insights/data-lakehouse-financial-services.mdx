@@ -1,0 +1,39 @@
+---
+title: "Data Lakehouse Architecture for a Major Financial Services Firm"
+description: "How we designed and implemented a unified data lakehouse that reduced data processing time by 70% and enabled real-time analytics for risk management."
+pubDate: "2026-02-01"
+heroImage: "/images/insights/lakehouse.svg"
+category: "Data Engineering"
+client: "Fortune 500 Financial Services"
+industry: "Financial Services"
+tags: ["data lakehouse", "financial services", "real-time analytics", "risk management"]
+---
+
+## The Challenge
+
+A major financial services firm was struggling with data silos across multiple legacy systems. Their risk management team needed real-time access to consolidated data, but their existing batch-processing architecture introduced delays of up to 24 hours.
+
+## Our Approach
+
+We designed a modern data lakehouse architecture using Delta Lake on AWS, combining the flexibility of a data lake with the reliability of a data warehouse.
+
+### Key Components
+
+- **Streaming Ingestion**: Apache Kafka for real-time data capture from 50+ source systems
+- **Delta Lake**: ACID-compliant storage layer with time travel and schema evolution
+- **Medallion Architecture**: Bronze, Silver, and Gold layers for progressive data refinement
+- **Real-time Serving**: Low-latency query layer using Databricks SQL
+
+## Results
+
+- **70% reduction** in data processing time
+- **Real-time risk dashboards** replacing 24-hour-old reports
+- **$2M annual savings** in infrastructure costs through consolidation
+- **Unified governance** across all data assets
+
+## Key Takeaways
+
+1. Start with clear business outcomes, not technology choices
+2. Invest in data quality from day one
+3. Build for evolution — the lakehouse pattern allows incremental migration
+4. Empower business users with self-service analytics

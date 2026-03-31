@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allInsights = (await getCollection('insights')).sort(
+  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+);
+---
+
+<BaseLayout
+  title="Industry Insights & Solutions"
+  description="Real-world case studies and solutions delivered across industries. See how data engineering, AI, and cloud architecture solve complex business challenges."
+  keywords={['case studies', 'industry insights', 'solutions', 'data engineering', 'AI implementations']}
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-primary-dark to-primary text-white py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">Industry Insights & Solutions</h1>
+      <p class="text-lg text-white/80 max-w-2xl">Real-world case studies showcasing how technology transforms businesses. Learn from solutions delivered across industries.</p>
+    </div>
+  </section>
+
+  <!-- Insights Grid -->
+  <section class="py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {allInsights.map((insight) => (
+          <article class="group bg-white rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all">
+            <a href={`/insights/${insight.id}`} class="block">
+              <div class="aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
+                {insight.data.heroImage ? (
+                  <img src={insight.data.heroImage} alt={insight.data.title} class="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <div class="text-center p-8">
+                    <span class="text-5xl">💡</span>
+                  </div>
+                )}
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-3 mb-3">
+                  {insight.data.category && (
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary">{insight.data.category}</span>
+                  )}
+                  {insight.data.industry && (
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">{insight.data.industry}</span>
+                  )}
+                </div>
+                <h2 class="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">{insight.data.title}</h2>
+                <p class="text-text-light text-sm line-clamp-3">{insight.data.description}</p>
+                <div class="mt-4 inline-flex items-center gap-1 text-sm text-primary font-medium">
+                  Read case study
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 sm:py-20 bg-surface">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl font-bold text-text-dark mb-4">Have a Similar Challenge?</h2>
+      <p class="text-text-light mb-8">Let's discuss how these approaches can be adapted for your organization.</p>
+      <a href="/contact" class="inline-block px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light transition-colors">
+        Get in Touch
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,48 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  pubDate: string;
+  heroImage?: string;
+  category?: string;
+  slug: string;
+  readingTime?: string;
+}
+
+const { title, description, pubDate, heroImage, category, slug, readingTime } = Astro.props;
+
+const formattedDate = new Date(pubDate).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+
+<article class="group bg-white rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1" itemscope itemtype="https://schema.org/BlogPosting">
+  <a href={`/blog/${slug}`} class="block">
+    <div class="aspect-video bg-surface overflow-hidden">
+      {heroImage ? (
+        <img src={heroImage} alt={title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" itemprop="image" />
+      ) : (
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-primary-light">
+          <span class="text-4xl text-white/30 font-bold">NB</span>
+        </div>
+      )}
+    </div>
+    <div class="p-5">
+      <div class="flex items-center gap-3 mb-3">
+        {category && (
+          <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary">
+            {category}
+          </span>
+        )}
+        <time datetime={pubDate} class="text-xs text-text-light" itemprop="datePublished">{formattedDate}</time>
+        {readingTime && <span class="text-xs text-text-light">{readingTime}</span>}
+      </div>
+      <h3 class="text-lg font-bold text-text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2" itemprop="headline">
+        {title}
+      </h3>
+      <p class="text-sm text-text-light line-clamp-3" itemprop="description">{description}</p>
+    </div>
+  </a>
+</article>

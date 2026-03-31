@@ -1,0 +1,187 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+);
+
+const categories = [...new Set(allPosts.map(post => post.data.category).filter(Boolean))];
+const allTags = [...new Set(allPosts.flatMap(post => post.data.tags))];
+---
+
+<BaseLayout
+  title="Blog"
+  description="Expert articles on data engineering, AI/ML, cloud architecture, and digital transformation. Practical insights for technology leaders and practitioners."
+  keywords={['blog', 'technology articles', 'data engineering', 'AI', 'cloud computing']}
+>
+  <!-- Blog Header -->
+  <section class="bg-gradient-to-br from-primary-dark to-primary text-white py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">Blog</h1>
+      <p class="text-lg text-white/80 max-w-2xl">Deep dives into technology, practical guides, and thought leadership on the topics that matter most.</p>
+    </div>
+  </section>
+
+  <!-- Search and Filter -->
+  <section class="bg-surface border-b border-border" id="search">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-1 relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input
+            type="search"
+            id="blog-search"
+            placeholder="Search articles..."
+            class="w-full pl-10 pr-4 py-3 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+        <select id="category-filter" class="px-4 py-3 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary bg-white">
+          <option value="">All Categories</option>
+          {categories.map(cat => (
+            <option value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button class="tag-filter px-3 py-1 rounded-full text-sm font-medium bg-primary text-white" data-tag="">
+          All
+        </button>
+        {allTags.map(tag => (
+          <button class="tag-filter px-3 py-1 rounded-full text-sm font-medium bg-white border border-border text-text-light hover:bg-primary hover:text-white hover:border-primary transition-colors" data-tag={tag}>
+            {tag}
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Posts Grid -->
+  <section class="py-12 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="blog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {allPosts.map((post) => (
+          <div class="blog-post-card" data-title={post.data.title.toLowerCase()} data-category={post.data.category?.toLowerCase() || ''} data-tags={post.data.tags.join(',').toLowerCase()}>
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              pubDate={post.data.pubDate}
+              heroImage={post.data.heroImage}
+              category={post.data.category}
+              slug={post.id}
+              readingTime={post.data.readingTime}
+            />
+          </div>
+        ))}
+      </div>
+      <div id="no-results" class="hidden text-center py-16">
+        <p class="text-xl text-text-light">No articles found matching your criteria.</p>
+        <button id="clear-filters" class="mt-4 text-primary font-medium hover:text-secondary transition-colors">Clear filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Naresh Babu Blog",
+    "description": "Expert articles on data engineering, AI/ML, cloud architecture, and digital transformation.",
+    "url": "https://nareshbabu.me/blog",
+    "author": {
+      "@type": "Person",
+      "name": "Naresh Babu"
+    },
+    "blogPost": allPosts.map(post => ({
+      "@type": "BlogPosting",
+      "headline": post.data.title,
+      "description": post.data.description,
+      "datePublished": post.data.pubDate,
+      "url": `https://nareshbabu.me/blog/${post.id}`,
+      "author": { "@type": "Person", "name": post.data.author }
+    }))
+  })} />
+
+  <script>
+    const searchInput = document.getElementById('blog-search') as HTMLInputElement;
+    const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
+    const cards = document.querySelectorAll('.blog-post-card');
+    const noResults = document.getElementById('no-results');
+    const clearBtn = document.getElementById('clear-filters');
+    const tagBtns = document.querySelectorAll('.tag-filter');
+    let activeTag = '';
+
+    function filterPosts() {
+      const query = searchInput?.value.toLowerCase() || '';
+      const category = categoryFilter?.value.toLowerCase() || '';
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const el = card as HTMLElement;
+        const title = el.dataset.title || '';
+        const cat = el.dataset.category || '';
+        const tags = el.dataset.tags || '';
+
+        const matchesSearch = !query || title.includes(query) || tags.includes(query);
+        const matchesCategory = !category || cat === category;
+        const matchesTag = !activeTag || tags.includes(activeTag.toLowerCase());
+
+        const visible = matchesSearch && matchesCategory && matchesTag;
+        el.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+
+      if (noResults) noResults.classList.toggle('hidden', visibleCount > 0);
+    }
+
+    searchInput?.addEventListener('input', filterPosts);
+    categoryFilter?.addEventListener('change', filterPosts);
+    clearBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      if (categoryFilter) categoryFilter.value = '';
+      activeTag = '';
+      tagBtns.forEach(btn => {
+        const el = btn as HTMLElement;
+        if (el.dataset.tag === '') {
+          el.className = 'tag-filter px-3 py-1 rounded-full text-sm font-medium bg-primary text-white';
+        } else {
+          el.className = 'tag-filter px-3 py-1 rounded-full text-sm font-medium bg-white border border-border text-text-light hover:bg-primary hover:text-white hover:border-primary transition-colors';
+        }
+      });
+      filterPosts();
+    });
+
+    tagBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTag = (btn as HTMLElement).dataset.tag || '';
+        tagBtns.forEach(b => {
+          const el = b as HTMLElement;
+          if (el.dataset.tag === activeTag) {
+            el.className = 'tag-filter px-3 py-1 rounded-full text-sm font-medium bg-primary text-white';
+          } else {
+            el.className = 'tag-filter px-3 py-1 rounded-full text-sm font-medium bg-white border border-border text-text-light hover:bg-primary hover:text-white hover:border-primary transition-colors';
+          }
+        });
+        filterPosts();
+      });
+    });
+
+    // Check URL params for tag filter
+    const params = new URLSearchParams(window.location.search);
+    const tagParam = params.get('tag');
+    if (tagParam) {
+      activeTag = tagParam;
+      tagBtns.forEach(b => {
+        const el = b as HTMLElement;
+        if (el.dataset.tag === activeTag) {
+          el.className = 'tag-filter px-3 py-1 rounded-full text-sm font-medium bg-primary text-white';
+        }
+      });
+      filterPosts();
+    }
+  </script>
+</BaseLayout>

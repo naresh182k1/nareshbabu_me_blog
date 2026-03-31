@@ -1,0 +1,109 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Consulting', href: '/consulting' },
+  { label: 'Insights', href: '/insights' },
+  { label: 'Reports', href: '/reports' },
+  { label: 'Contact', href: '/contact' },
+];
+---
+
+<header class="bg-white/95 backdrop-blur-md border-b border-border sticky top-0 z-50" role="banner">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 lg:h-20">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3 group" aria-label="Naresh Babu - Home">
+        <div class="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-lg group-hover:bg-secondary transition-colors">
+          NB
+        </div>
+        <div class="hidden sm:block">
+          <span class="text-lg font-bold text-text-dark">Naresh Babu</span>
+          <span class="block text-xs text-text-light -mt-1">Technology Insights</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden lg:flex items-center gap-1" aria-label="Main navigation">
+        {navItems.map(({ label, href }) => (
+          <a
+            href={href}
+            class:list={[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+              currentPath === href || (href !== '/' && currentPath.startsWith(href))
+                ? 'bg-primary text-white'
+                : 'text-text hover:bg-surface hover:text-primary',
+            ]}
+            aria-current={currentPath === href ? 'page' : undefined}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <!-- Search + Mobile Menu Button -->
+      <div class="flex items-center gap-3">
+        <a href="/blog#search" class="p-2 text-text-light hover:text-primary transition-colors" aria-label="Search blog">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </a>
+
+        <!-- Mobile menu button -->
+        <button
+          id="mobile-menu-btn"
+          class="lg:hidden p-2 text-text-light hover:text-primary transition-colors"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg class="w-6 h-6" id="menu-icon-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg class="w-6 h-6 hidden" id="menu-icon-close" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav
+    id="mobile-menu"
+    class="lg:hidden hidden border-t border-border bg-white"
+    aria-label="Mobile navigation"
+  >
+    <div class="px-4 py-4 space-y-1">
+      {navItems.map(({ label, href }) => (
+        <a
+          href={href}
+          class:list={[
+            'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+            currentPath === href || (href !== '/' && currentPath.startsWith(href))
+              ? 'bg-primary text-white'
+              : 'text-text hover:bg-surface',
+          ]}
+        >
+          {label}
+        </a>
+      ))}
+    </div>
+  </nav>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+
+  btn?.addEventListener('click', () => {
+    const isOpen = menu?.classList.toggle('hidden') === false;
+    btn.setAttribute('aria-expanded', String(isOpen));
+    iconOpen?.classList.toggle('hidden', isOpen);
+    iconClose?.classList.toggle('hidden', !isOpen);
+  });
+</script>
