@@ -1,64 +1,64 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const services = [
+const expertiseAreas = [
   {
     title: 'Data Engineering & Analytics',
-    description: 'Design and implement end-to-end data solutions — from ingestion pipelines and data warehouses to real-time analytics platforms. I help organizations build data foundations that enable informed decision-making.',
+    description: 'Deep experience in designing end-to-end data solutions — from ingestion pipelines and data warehouses to real-time analytics platforms. I bring a practitioner\'s perspective on building data foundations that enable informed decision-making.',
     capabilities: ['Data Pipeline Design & Development', 'Data Warehouse & Lake Architecture', 'Real-time Streaming Solutions', 'Data Quality & Governance', 'ETL/ELT Optimization', 'Analytics Platform Development'],
     icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>`,
   },
   {
     title: 'AI & Machine Learning',
-    description: 'From strategy to implementation, I help businesses harness the power of AI and ML. Whether it is building predictive models, implementing NLP solutions, or establishing MLOps practices, I bring practical AI expertise.',
+    description: 'Hands-on expertise across the AI/ML lifecycle — from strategy and model development to deployment and MLOps. Whether it is building predictive models, implementing NLP solutions, or establishing production ML practices, I offer practical, grounded perspectives.',
     capabilities: ['ML Model Development & Deployment', 'NLP & Document Intelligence', 'Predictive Analytics', 'MLOps & Model Monitoring', 'AI Strategy & Roadmap', 'Computer Vision Solutions'],
     icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>`,
   },
   {
     title: 'Cloud Architecture & Migration',
-    description: 'Architect cloud-native solutions and execute seamless cloud migrations. I specialize in designing scalable, secure, and cost-optimized architectures on AWS, Azure, and GCP.',
+    description: 'Extensive background in cloud-native solution design and large-scale cloud migrations. I specialize in scalable, secure, and cost-optimized architectures across AWS, Azure, and GCP.',
     capabilities: ['Cloud Architecture Design', 'Migration Strategy & Execution', 'Infrastructure as Code', 'Cost Optimization', 'Multi-Cloud Strategy', 'Security & Compliance'],
     icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>`,
   },
   {
     title: 'Digital Transformation',
-    description: 'Guide organizations through technology-driven transformation. I work with leadership teams to identify opportunities, define strategies, and execute on initiatives that drive measurable business value.',
+    description: 'Experience guiding organizations through technology-driven transformation. I work with leadership teams to identify opportunities, define strategies, and execute on initiatives that drive measurable business value.',
     capabilities: ['Technology Strategy', 'Process Automation', 'Legacy Modernization', 'Team Building & Mentoring', 'Vendor Evaluation', 'Change Management'],
     icon: `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`,
   },
 ];
 
-const process = [
-  { step: '01', title: 'Discovery', description: 'Understanding your challenges, goals, and current technology landscape through in-depth discussion.' },
-  { step: '02', title: 'Strategy', description: 'Developing a tailored roadmap with clear milestones, deliverables, and success metrics.' },
-  { step: '03', title: 'Execution', description: 'Hands-on implementation with regular check-ins, knowledge transfer, and documentation.' },
-  { step: '04', title: 'Support', description: 'Ongoing guidance to ensure long-term success and help your team maintain momentum.' },
+const methodology = [
+  { step: '01', title: 'Understand', description: 'Listen deeply to understand your unique challenges, business context, and desired outcomes before forming any opinions.' },
+  { step: '02', title: 'Assess', description: 'Evaluate your current technology landscape, identify gaps and opportunities, and benchmark against industry best practices.' },
+  { step: '03', title: 'Recommend', description: 'Provide clear, actionable recommendations with a tailored roadmap — prioritized by impact and feasibility.' },
+  { step: '04', title: 'Support', description: 'Stay engaged to answer follow-up questions, review progress, and help your team navigate implementation challenges.' },
 ];
 ---
 
 <BaseLayout
-  title="Consulting Services"
-  description="Expert consulting in data engineering, AI/ML, cloud architecture, and digital transformation. Practical solutions for complex technology challenges."
-  keywords={['consulting', 'data engineering consulting', 'AI consulting', 'cloud architecture', 'digital transformation']}
+  title="Expertise"
+  description="Expert opinion on data engineering, AI/ML, cloud architecture, and digital transformation. Practical, grounded perspectives to help you make better technology decisions."
+  keywords={['expertise', 'data engineering', 'AI expert', 'cloud architecture', 'digital transformation', 'expert opinion']}
 >
   <!-- Hero -->
   <section class="bg-gradient-to-br from-primary-dark to-primary text-white py-16 sm:py-20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="max-w-3xl">
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6">Consulting Services</h1>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6">Expertise</h1>
         <p class="text-lg text-white/80 leading-relaxed">
-          Leveraging years of hands-on experience to help organizations solve complex technology challenges. From strategy to implementation, I deliver practical solutions that create real business value.
+          For any kind of expert opinion on data engineering, AI/ML, cloud architecture, or digital transformation — feel free to reach out. I bring years of hands-on experience and offer practical, grounded perspectives to help you make better technology decisions.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Services -->
-  <section class="py-16 sm:py-20" aria-labelledby="services-heading">
+  <!-- Expertise Areas -->
+  <section class="py-16 sm:py-20" aria-labelledby="expertise-heading">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 id="services-heading" class="text-2xl sm:text-3xl font-bold text-center mb-12">Areas of Expertise</h2>
+      <h2 id="expertise-heading" class="text-2xl sm:text-3xl font-bold text-center mb-12">Areas of Expertise</h2>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {services.map(({ title, description, capabilities, icon }) => (
+        {expertiseAreas.map(({ title, description, capabilities, icon }) => (
           <div class="p-8 rounded-2xl border border-border hover:shadow-lg transition-shadow">
             <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-6">
               <Fragment set:html={icon} />
@@ -79,12 +79,13 @@ const process = [
     </div>
   </section>
 
-  <!-- Process -->
-  <section class="py-16 sm:py-20 bg-surface" aria-labelledby="process-heading">
+  <!-- Methodology -->
+  <section class="py-16 sm:py-20 bg-surface" aria-labelledby="methodology-heading">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 id="process-heading" class="text-2xl sm:text-3xl font-bold text-center mb-12">How I Work</h2>
+      <h2 id="methodology-heading" class="text-2xl sm:text-3xl font-bold text-center mb-4">My Methodology</h2>
+      <p class="text-text-light text-center max-w-2xl mx-auto mb-12">When you reach out for an expert opinion, here is how I approach it to make sure you get the most value from our interaction.</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {process.map(({ step, title, description }) => (
+        {methodology.map(({ step, title, description }) => (
           <div class="text-center">
             <div class="text-4xl font-extrabold text-secondary/30 mb-3">{step}</div>
             <h3 class="text-lg font-bold text-text-dark mb-2">{title}</h3>
@@ -98,10 +99,10 @@ const process = [
   <!-- CTA -->
   <section class="py-16 sm:py-20 bg-primary text-white">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-2xl sm:text-3xl font-bold mb-4">Ready to Get Started?</h2>
-      <p class="text-white/80 mb-8">Let's discuss how I can help your organization achieve its technology goals.</p>
+      <h2 class="text-2xl sm:text-3xl font-bold mb-4">Need an Expert Opinion?</h2>
+      <p class="text-white/80 mb-8">Whether you have a specific technical challenge or need a second pair of eyes on your architecture, I am happy to help. Reach out and let's talk.</p>
       <a href="/contact" class="inline-block px-8 py-4 bg-secondary text-white rounded-lg font-semibold hover:bg-secondary-light transition-colors">
-        Schedule a Consultation
+        Get in Touch
       </a>
     </div>
   </section>
@@ -112,15 +113,15 @@ const process = [
       <h2 id="faq-heading" class="text-2xl sm:text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
       <div class="space-y-6" itemscope itemtype="https://schema.org/FAQPage">
         <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question" class="border border-border rounded-xl p-6">
-          <h3 itemprop="name" class="font-semibold text-text-dark mb-2">What industries do you work with?</h3>
+          <h3 itemprop="name" class="font-semibold text-text-dark mb-2">What industries do you have experience with?</h3>
           <div itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
-            <p itemprop="text" class="text-text-light">I work across multiple industries including financial services, healthcare, retail, manufacturing, and technology. My focus is on solving data and technology challenges that are common across sectors.</p>
+            <p itemprop="text" class="text-text-light">I have worked across multiple industries including financial services, healthcare, retail, manufacturing, and technology. My expertise is rooted in solving data and technology challenges that are common across sectors.</p>
           </div>
         </div>
         <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question" class="border border-border rounded-xl p-6">
-          <h3 itemprop="name" class="font-semibold text-text-dark mb-2">How do you typically engage with clients?</h3>
+          <h3 itemprop="name" class="font-semibold text-text-dark mb-2">How can I get your expert opinion on my project?</h3>
           <div itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
-            <p itemprop="text" class="text-text-light">Engagements range from short-term advisory sessions to long-term implementation projects. I typically start with a discovery session to understand your needs, then propose a tailored engagement model.</p>
+            <p itemprop="text" class="text-text-light">Simply reach out through the contact page with a brief description of your challenge or question. I will review it and get back to you to set up a conversation. There is no obligation — I am genuinely interested in helping teams solve hard problems.</p>
           </div>
         </div>
         <div itemscope itemprop="mainEntity" itemtype="https://schema.org/Question" class="border border-border rounded-xl p-6">
