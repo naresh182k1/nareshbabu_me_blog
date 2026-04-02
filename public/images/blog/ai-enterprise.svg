@@ -1,21 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg-ai" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#0f1f33"/>
-      <stop offset="100%" style="stop-color:#1e3a5f"/>
+      <stop offset="50%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#0f1f33"/>
     </linearGradient>
+    <filter id="glow-ai"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="blur-ai"><feGaussianBlur stdDeviation="50"/></filter>
+    <pattern id="grid-ai" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="0.5" fill="white" opacity="0.1"/>
+    </pattern>
   </defs>
-  <rect width="800" height="450" fill="url(#bg2)"/>
-  <circle cx="400" cy="200" r="80" fill="none" stroke="#e8913a" stroke-width="2"/>
-  <circle cx="400" cy="200" r="55" fill="none" stroke="#2ecc71" stroke-width="2"/>
-  <circle cx="400" cy="200" r="30" fill="#e8913a" opacity="0.4"/>
-  <circle cx="320" cy="140" r="8" fill="#2ecc71"/>
-  <circle cx="480" cy="140" r="8" fill="#2ecc71"/>
-  <circle cx="320" cy="260" r="8" fill="#2ecc71"/>
-  <circle cx="480" cy="260" r="8" fill="#2ecc71"/>
-  <line x1="328" y1="144" x2="392" y2="196" stroke="#2ecc71" stroke-width="1" opacity="0.5"/>
-  <line x1="472" y1="144" x2="408" y2="196" stroke="#2ecc71" stroke-width="1" opacity="0.5"/>
-  <line x1="328" y1="256" x2="392" y2="204" stroke="#2ecc71" stroke-width="1" opacity="0.5"/>
-  <line x1="472" y1="256" x2="408" y2="204" stroke="#2ecc71" stroke-width="1" opacity="0.5"/>
-  <text x="400" y="380" font-family="Inter, system-ui, sans-serif" font-size="24" fill="white" text-anchor="middle" font-weight="600">AI &amp; Enterprise</text>
+  <rect width="1200" height="630" fill="url(#bg-ai)"/>
+  <rect width="1200" height="630" fill="url(#grid-ai)"/>
+  <ellipse cx="600" cy="280" rx="300" ry="200" fill="#e8913a" opacity="0.06" filter="url(#blur-ai)"/>
+  <!-- Neural network layers -->
+  <!-- Layer 1 - Input -->
+  <g filter="url(#glow-ai)">
+    <circle cx="250" cy="150" r="10" fill="#e8913a" opacity="0.8"/>
+    <circle cx="250" cy="250" r="10" fill="#e8913a" opacity="0.8"/>
+    <circle cx="250" cy="350" r="10" fill="#e8913a" opacity="0.8"/>
+    <circle cx="250" cy="450" r="10" fill="#e8913a" opacity="0.8"/>
+  </g>
+  <!-- Layer 2 - Hidden 1 -->
+  <g filter="url(#glow-ai)">
+    <circle cx="450" cy="120" r="10" fill="white" opacity="0.6"/>
+    <circle cx="450" cy="220" r="10" fill="white" opacity="0.6"/>
+    <circle cx="450" cy="320" r="10" fill="white" opacity="0.6"/>
+    <circle cx="450" cy="420" r="10" fill="white" opacity="0.6"/>
+    <circle cx="450" cy="480" r="8" fill="white" opacity="0.4"/>
+  </g>
+  <!-- Layer 3 - Hidden 2 -->
+  <g filter="url(#glow-ai)">
+    <circle cx="650" cy="170" r="10" fill="white" opacity="0.6"/>
+    <circle cx="650" cy="270" r="10" fill="white" opacity="0.6"/>
+    <circle cx="650" cy="370" r="10" fill="white" opacity="0.6"/>
+    <circle cx="650" cy="450" r="8" fill="white" opacity="0.4"/>
+  </g>
+  <!-- Layer 4 - Hidden 3 -->
+  <g filter="url(#glow-ai)">
+    <circle cx="850" cy="200" r="10" fill="white" opacity="0.6"/>
+    <circle cx="850" cy="300" r="10" fill="white" opacity="0.6"/>
+    <circle cx="850" cy="400" r="10" fill="white" opacity="0.6"/>
+  </g>
+  <!-- Layer 5 - Output -->
+  <g filter="url(#glow-ai)">
+    <circle cx="1000" cy="250" r="12" fill="#2ecc71" opacity="0.8"/>
+    <circle cx="1000" cy="350" r="12" fill="#2ecc71" opacity="0.8"/>
+  </g>
+  <!-- Connections Layer 1->2 -->
+  <g opacity="0.15" stroke="white" stroke-width="1">
+    <line x1="260" y1="150" x2="440" y2="120"/><line x1="260" y1="150" x2="440" y2="220"/><line x1="260" y1="150" x2="440" y2="320"/>
+    <line x1="260" y1="250" x2="440" y2="120"/><line x1="260" y1="250" x2="440" y2="220"/><line x1="260" y1="250" x2="440" y2="320"/><line x1="260" y1="250" x2="440" y2="420"/>
+    <line x1="260" y1="350" x2="440" y2="220"/><line x1="260" y1="350" x2="440" y2="320"/><line x1="260" y1="350" x2="440" y2="420"/>
+    <line x1="260" y1="450" x2="440" y2="320"/><line x1="260" y1="450" x2="440" y2="420"/><line x1="260" y1="450" x2="440" y2="480"/>
+  </g>
+  <!-- Connections 2->3 -->
+  <g opacity="0.12" stroke="white" stroke-width="1">
+    <line x1="460" y1="120" x2="640" y2="170"/><line x1="460" y1="120" x2="640" y2="270"/>
+    <line x1="460" y1="220" x2="640" y2="170"/><line x1="460" y1="220" x2="640" y2="270"/><line x1="460" y1="220" x2="640" y2="370"/>
+    <line x1="460" y1="320" x2="640" y2="270"/><line x1="460" y1="320" x2="640" y2="370"/>
+    <line x1="460" y1="420" x2="640" y2="370"/><line x1="460" y1="420" x2="640" y2="450"/>
+  </g>
+  <!-- Connections 3->4 -->
+  <g opacity="0.12" stroke="white" stroke-width="1">
+    <line x1="660" y1="170" x2="840" y2="200"/><line x1="660" y1="170" x2="840" y2="300"/>
+    <line x1="660" y1="270" x2="840" y2="200"/><line x1="660" y1="270" x2="840" y2="300"/><line x1="660" y1="270" x2="840" y2="400"/>
+    <line x1="660" y1="370" x2="840" y2="300"/><line x1="660" y1="370" x2="840" y2="400"/>
+  </g>
+  <!-- Connections 4->5 -->
+  <g opacity="0.15" stroke="#2ecc71" stroke-width="1.5">
+    <line x1="860" y1="200" x2="988" y2="250"/><line x1="860" y1="200" x2="988" y2="350"/>
+    <line x1="860" y1="300" x2="988" y2="250"/><line x1="860" y1="300" x2="988" y2="350"/>
+    <line x1="860" y1="400" x2="988" y2="350"/>
+  </g>
+  <!-- Labels -->
+  <text x="250" y="520" font-family="Inter,sans-serif" font-size="12" fill="white" text-anchor="middle" opacity="0.4">Input</text>
+  <text x="550" y="520" font-family="Inter,sans-serif" font-size="12" fill="white" text-anchor="middle" opacity="0.4">Hidden Layers</text>
+  <text x="1000" y="420" font-family="Inter,sans-serif" font-size="12" fill="white" text-anchor="middle" opacity="0.4">Output</text>
+  <!-- Enterprise silhouette -->
+  <g opacity="0.08" fill="white">
+    <rect x="100" y="540" width="60" height="90"/><rect x="170" y="560" width="40" height="70"/><rect x="220" y="520" width="70" height="110"/><rect x="300" y="550" width="50" height="80"/>
+    <rect x="800" y="540" width="50" height="90"/><rect x="860" y="510" width="80" height="120"/><rect x="950" y="545" width="45" height="85"/><rect x="1005" y="530" width="60" height="100"/>
+  </g>
+  <text x="600" y="590" font-family="Inter,sans-serif" font-size="28" fill="white" text-anchor="middle" font-weight="700" letter-spacing="0.5">AI &amp; ML in Enterprise Operations</text>
 </svg>

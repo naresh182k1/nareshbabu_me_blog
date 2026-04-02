@@ -1,0 +1,67 @@
+---
+interface Props {
+  src: string;
+  title?: string;
+  type?: 'youtube' | 'vimeo' | 'local';
+}
+
+const { src, title = 'Video', type = 'youtube' } = Astro.props;
+
+function getEmbedUrl(src: string, type: string): string {
+  if (type === 'youtube') {
+    // Handle various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    ];
+    for (const pattern of patterns) {
+      const match = src.match(pattern);
+      if (match) return `https://www.youtube-nocookie.com/embed/${match[1]}`;
+    }
+    // If it's already an embed URL or just an ID
+    if (src.length === 11) return `https://www.youtube-nocookie.com/embed/${src}`;
+    return src;
+  }
+  if (type === 'vimeo') {
+    const match = src.match(/vimeo\.com\/(\d+)/);
+    if (match) return `https://player.vimeo.com/video/${match[1]}`;
+    return src;
+  }
+  return src;
+}
+
+const embedUrl = type !== 'local' ? getEmbedUrl(src, type) : src;
+---
+
+{type === 'local' ? (
+  <div class="my-8 rounded-xl overflow-hidden shadow-lg bg-black">
+    <video
+      controls
+      preload="metadata"
+      class="w-full"
+      aria-label={title}
+    >
+      <source src={src} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+    {title && title !== 'Video' && (
+      <p class="text-center text-sm text-text-light py-3 bg-surface">{title}</p>
+    )}
+  </div>
+) : (
+  <div class="my-8 rounded-xl overflow-hidden shadow-lg">
+    <div class="relative w-full" style="padding-bottom: 56.25%;">
+      <iframe
+        src={embedUrl}
+        title={title}
+        class="absolute inset-0 w-full h-full"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+    {title && title !== 'Video' && (
+      <p class="text-center text-sm text-text-light py-3 bg-surface">{title}</p>
+    )}
+  </div>
+)}
