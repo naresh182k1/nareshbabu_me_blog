@@ -1,0 +1,222 @@
+backend:
+  name: github
+  repo: naresh182k1/nareshbabu_me_blog
+  branch: main
+  base_url: https://nareshbabu.me
+  auth_endpoint: /auth
+
+publish_mode: editorial_workflow
+
+media_folder: "public/images"
+public_folder: "/images"
+
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  # ─── Blog Posts ───────────────────────────────────────────
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    delete: true
+    extension: "mdx"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    sortable_fields: ["pubDate", "title"]
+    view_groups:
+      - label: "Category"
+        field: "category"
+    summary: "{{title}} — {{pubDate}}"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        required: true
+
+      - label: "Description (SEO)"
+        name: "description"
+        widget: "text"
+        required: true
+        hint: "Appears in search results and social shares. Keep under 160 characters for best SEO."
+
+      - label: "Publish Date"
+        name: "pubDate"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: true
+
+      - label: "Updated Date"
+        name: "updatedDate"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: false
+
+      - label: "Hero Image"
+        name: "heroImage"
+        widget: "image"
+        required: false
+        media_folder: "/public/images/blog"
+        public_folder: "/images/blog"
+        hint: "Main image shown at the top of the blog post."
+
+      - label: "Category"
+        name: "category"
+        widget: "string"
+        required: true
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        hint: "Comma-separated tags for filtering and SEO."
+
+      - label: "Author"
+        name: "author"
+        widget: "string"
+        default: "Naresh Babu"
+        required: true
+
+      - label: "Reading Time"
+        name: "readingTime"
+        widget: "string"
+        required: false
+        hint: "e.g. '14 min read'"
+
+      - label: "Body"
+        name: "body"
+        widget: "markdown"
+        required: true
+
+  # ─── Insights ─────────────────────────────────────────────
+  - name: "insights"
+    label: "Insights"
+    folder: "src/content/insights"
+    create: true
+    delete: true
+    extension: "mdx"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    sortable_fields: ["pubDate", "title"]
+    summary: "{{title}} — {{pubDate}}"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        required: true
+
+      - label: "Description (SEO)"
+        name: "description"
+        widget: "text"
+        required: true
+
+      - label: "Publish Date"
+        name: "pubDate"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: true
+
+      - label: "Hero Image"
+        name: "heroImage"
+        widget: "image"
+        required: false
+        media_folder: "/public/images/insights"
+        public_folder: "/images/insights"
+
+      - label: "Category"
+        name: "category"
+        widget: "string"
+        required: true
+
+      - label: "Client"
+        name: "client"
+        widget: "string"
+        required: false
+        hint: "Client or organization name (can be anonymized)."
+
+      - label: "Industry"
+        name: "industry"
+        widget: "string"
+        required: false
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+
+      - label: "Body"
+        name: "body"
+        widget: "markdown"
+        required: true
+
+  # ─── Reports ──────────────────────────────────────────────
+  - name: "reports"
+    label: "Reports"
+    folder: "src/content/reports"
+    create: true
+    delete: true
+    extension: "mdx"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    sortable_fields: ["pubDate", "title"]
+    summary: "{{title}} — {{pubDate}}"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        required: true
+
+      - label: "Description (SEO)"
+        name: "description"
+        widget: "text"
+        required: true
+
+      - label: "Publish Date"
+        name: "pubDate"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: true
+
+      - label: "Cover Image"
+        name: "coverImage"
+        widget: "image"
+        required: false
+        media_folder: "/public/images/reports"
+        public_folder: "/images/reports"
+
+      - label: "Source"
+        name: "source"
+        widget: "string"
+        required: true
+        hint: "e.g. 'McKinsey & Company', 'Gartner'"
+
+      - label: "Category"
+        name: "category"
+        widget: "string"
+        required: true
+
+      - label: "Report File URL"
+        name: "fileUrl"
+        widget: "string"
+        required: false
+        hint: "Link to the full report PDF or external source."
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+
+      - label: "Body"
+        name: "body"
+        widget: "markdown"
+        required: true
