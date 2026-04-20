@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from 'astro:content';
+import DeckLayout from '../../layouts/DeckLayout.astro';
+
+export async function getStaticPaths() {
+  const decks = await getCollection('decks');
+  return decks.map((deck) => ({
+    params: { slug: deck.id },
+    props: { deck },
+  }));
+}
+
+const { deck } = Astro.props;
+const { Content } = await render(deck);
+---
+
+<DeckLayout
+  title={deck.data.title}
+  description={deck.data.description}
+  coverImage={deck.data.coverImage}
+  client={deck.data.client}
+  brand={deck.data.brand}
+  category={deck.data.category}
+  tags={deck.data.tags}
+  author={deck.data.author}
+  pubDate={deck.data.pubDate}
+>
+  <Content />
+</DeckLayout>

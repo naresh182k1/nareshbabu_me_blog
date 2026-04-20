@@ -1,0 +1,204 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  coverImage?: string;
+  client?: string;
+  brand?: 'personal' | 'infiniai' | 'mobilelive';
+  category?: string;
+  tags?: string[];
+  author?: string;
+  pubDate?: string;
+}
+
+const {
+  title,
+  description = '',
+  coverImage,
+  client,
+  brand = 'personal',
+  category,
+  tags = [],
+  author = 'Naresh Babu',
+  pubDate,
+} = Astro.props;
+
+const siteUrl = 'https://nareshbabu.me';
+const fullTitle = `${title} | Pitch Deck`;
+const ogImage = coverImage?.startsWith('http') ? coverImage : `${siteUrl}${coverImage || '/images/og-default.jpg'}`;
+
+const brandLabels: Record<string, string> = {
+  personal: 'Naresh Babu',
+  infiniai: 'InfiniAI',
+  mobilelive: 'MobileLive',
+};
+const brandLabel = brandLabels[brand] || 'Naresh Babu';
+---
+
+<!DOCTYPE html>
+<html lang="en" data-deck-brand={brand}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <meta name="author" content={author} />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content={fullTitle} />
+  <meta property="twitter:description" content={description} />
+  <meta property="twitter:image" content={ogImage} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="deck-body">
+  <!-- Top Bar -->
+  <header class="deck-topbar">
+    <div class="deck-topbar-inner">
+      <a href="/decks" class="deck-exit" aria-label="Back to decks">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <span>Decks</span>
+      </a>
+      <div class="deck-topbar-title">
+        <span class="deck-title-text">{title}</span>
+        {client && <span class="deck-client-badge">{client}</span>}
+      </div>
+      <div class="deck-topbar-brand">{brandLabel}</div>
+    </div>
+  </header>
+
+  <!-- Slide Container -->
+  <div class="deck-viewport" id="deck-viewport">
+    <div class="deck-slides" id="deck-slides">
+      <div class="deck-mdx-content" id="deck-mdx-content">
+        <slot />
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Controls -->
+  <nav class="deck-nav" id="deck-nav">
+    <button class="deck-nav-btn" id="prev-btn" aria-label="Previous slide">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <span class="deck-slide-counter" id="slide-counter">1 / 1</span>
+    <button class="deck-nav-btn" id="next-btn" aria-label="Next slide">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </nav>
+
+  <!-- Progress Bar -->
+  <div class="deck-progress" id="deck-progress">
+    <div class="deck-progress-bar" id="deck-progress-bar"></div>
+  </div>
+
+  <!-- Watermark -->
+  <div class="deck-watermark">presented by {brandLabel.toLowerCase() === 'naresh babu' ? 'nareshbabu.me' : brandLabel}</div>
+
+  <script is:inline>
+  (function() {
+    const mdxContent = document.getElementById('deck-mdx-content');
+    const viewport = document.getElementById('deck-viewport');
+    const slidesContainer = document.getElementById('deck-slides');
+    const counter = document.getElementById('slide-counter');
+    const progressBar = document.getElementById('deck-progress-bar');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    if (!mdxContent || !viewport || !slidesContainer) return;
+
+    // Split MDX content at <hr> elements into slides
+    const children = Array.from(mdxContent.childNodes);
+    const slideContents = [[]];
+    children.forEach(node => {
+      if (node.nodeType === 1 && node.tagName === 'HR') {
+        slideContents.push([]);
+      } else {
+        slideContents[slideContents.length - 1].push(node);
+      }
+    });
+
+    // Remove original content and create slide sections
+    mdxContent.style.display = 'none';
+    const slides = [];
+    slideContents.forEach((nodes, i) => {
+      const section = document.createElement('section');
+      section.className = 'deck-slide';
+      section.id = 'slide-' + (i + 1);
+      const inner = document.createElement('div');
+      inner.className = 'deck-slide-inner prose';
+      nodes.forEach(n => inner.appendChild(n));
+      section.appendChild(inner);
+      slidesContainer.appendChild(section);
+      slides.push(section);
+    });
+
+    let current = 0;
+    const total = slides.length;
+
+    function goTo(index) {
+      if (index < 0 || index >= total) return;
+      slides[current].classList.remove('deck-slide-active');
+      current = index;
+      slides[current].classList.add('deck-slide-active');
+      counter.textContent = (current + 1) + ' / ' + total;
+      progressBar.style.width = ((current + 1) / total * 100) + '%';
+      history.replaceState(null, '', '#slide-' + (current + 1));
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+    }
+
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+
+    // Initialize from hash or slide 1
+    const hashMatch = location.hash.match(/^#slide-(\d+)$/);
+    const startSlide = hashMatch ? Math.min(parseInt(hashMatch[1], 10) - 1, total - 1) : 0;
+    goTo(Math.max(0, startSlide));
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); next(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+      else if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      else if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+      else if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function(){});
+        } else {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    // Button clicks
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    // Touch/swipe navigation
+    let touchStartX = 0;
+    let touchStartY = 0;
+    viewport.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    viewport.addEventListener('touchend', function(e) {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      const dy = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+        if (dx < 0) next(); else prev();
+      }
+    }, { passive: true });
+  })();
+  </script>
+</body>
+</html>

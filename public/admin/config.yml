@@ -220,3 +220,87 @@ collections:
         name: "body"
         widget: "markdown"
         required: true
+
+  # ─── Pitch Decks ─────────────────────────────────────────────
+  - name: "decks"
+    label: "Pitch Decks"
+    folder: "src/content/decks"
+    create: true
+    delete: true
+    extension: "mdx"
+    format: "frontmatter"
+    slug: "{{slug}}"
+    nested:
+      depth: 2
+    sortable_fields: ["pubDate", "title"]
+    view_groups:
+      - label: "Brand"
+        field: "brand"
+    summary: "{{title}} — {{brand}} — {{pubDate}}"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        required: true
+
+      - label: "Description (SEO)"
+        name: "description"
+        widget: "text"
+        required: true
+
+      - label: "Publish Date"
+        name: "pubDate"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: true
+
+      - label: "Cover Image"
+        name: "coverImage"
+        widget: "image"
+        required: false
+        media_folder: "/public/images/decks"
+        public_folder: "/images/decks"
+
+      - label: "Client"
+        name: "client"
+        widget: "string"
+        required: false
+        hint: "Client or audience for this deck."
+
+      - label: "Brand"
+        name: "brand"
+        widget: "select"
+        options:
+          - label: "Personal (nareshbabu.me)"
+            value: "personal"
+          - label: "InfiniAI"
+            value: "infiniai"
+          - label: "MobileLive"
+            value: "mobilelive"
+        default: "personal"
+        required: true
+        hint: "Determines the visual theme and branding of the deck."
+
+      - label: "Category"
+        name: "category"
+        widget: "string"
+        required: false
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+
+      - label: "Author"
+        name: "author"
+        widget: "string"
+        default: "Naresh Babu"
+        required: true
+
+      - label: "Body (Slides)"
+        name: "body"
+        widget: "markdown"
+        required: true
+        hint: "Use --- (horizontal rule) to separate slides. Each section between --- becomes one slide."

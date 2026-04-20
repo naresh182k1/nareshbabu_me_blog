@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allDecks = (await getCollection('decks')).sort(
+  (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
+);
+
+const brandColors: Record<string, string> = {
+  personal: 'bg-primary/10 text-primary',
+  infiniai: 'bg-green-100 text-green-800',
+  mobilelive: 'bg-orange-100 text-orange-800',
+};
+const brandLabels: Record<string, string> = {
+  personal: 'Personal',
+  infiniai: 'InfiniAI',
+  mobilelive: 'MobileLive',
+};
+---
+
+<BaseLayout
+  title="Pitch Decks"
+  description="Professional pitch decks and presentations on AI strategy, data engineering, cloud architecture, and digital transformation."
+  keywords={['pitch decks', 'presentations', 'AI strategy', 'consulting', 'enterprise']}
+>
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-primary-dark to-primary text-white py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4">Pitch Decks</h1>
+      <p class="text-lg text-white/80 max-w-2xl">Professional presentations and strategy decks. Click to view as full-screen slides.</p>
+    </div>
+  </section>
+
+  <!-- Decks Grid -->
+  <section class="py-16 sm:py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {allDecks.length === 0 ? (
+        <p class="text-center text-text-light text-lg py-12">No decks published yet. Check back soon.</p>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {allDecks.map((deck) => (
+            <a href={`/decks/${deck.id}`} class="group block bg-white rounded-xl border border-border overflow-hidden hover:shadow-lg transition-all">
+              <div class="aspect-[16/9] bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-8 relative">
+                {deck.data.coverImage ? (
+                  <img src={deck.data.coverImage} alt={deck.data.title} class="w-full h-full object-cover absolute inset-0" loading="lazy" />
+                ) : (
+                  <div class="text-center">
+                    <span class="text-5xl">📊</span>
+                    <p class="mt-2 text-sm text-text-light font-medium">{deck.data.category || 'Presentation'}</p>
+                  </div>
+                )}
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3 flex-wrap">
+                  <span class={`text-xs font-medium px-2.5 py-0.5 rounded-full ${brandColors[deck.data.brand] || brandColors.personal}`}>
+                    {brandLabels[deck.data.brand] || 'Personal'}
+                  </span>
+                  {deck.data.category && (
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-secondary/10 text-secondary">{deck.data.category}</span>
+                  )}
+                  {deck.data.client && (
+                    <span class="text-xs text-text-light">{deck.data.client}</span>
+                  )}
+                </div>
+                <h2 class="text-lg font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">{deck.data.title}</h2>
+                <p class="text-sm text-text-light mb-3 line-clamp-2">{deck.data.description}</p>
+                <time class="text-xs text-text-light">{new Date(deck.data.pubDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</BaseLayout>

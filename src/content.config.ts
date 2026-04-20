@@ -44,4 +44,19 @@ const reports = defineCollection({
   }),
 });
 
-export const collections = { blog, insights, reports };
+const decks = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/decks' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: z.string(),
+    coverImage: z.string().optional(),
+    client: z.string().optional(),
+    brand: z.enum(['personal', 'infiniai', 'mobilelive']).default('personal'),
+    category: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    author: z.string().default('Naresh Babu'),
+  }),
+});
+
+export const collections = { blog, insights, reports, decks };
