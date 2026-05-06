@@ -1,0 +1,391 @@
+---
+title: "GitHub Copilot for Enterprise — A Deep Dive on Adoption"
+description: "A problem-to-solution deep dive for enterprises adopting GitHub Copilot — covering Agent Mode, Coding Agent, Custom Agents, MCP Servers, Agent HQ, and the governance model that makes it safe at scale."
+pubDate: "2026-05-05"
+brand: "personal"
+category: "Enterprise Adoption"
+tags: ["GitHub Copilot", "AI agents", "Agent HQ", "MCP", "AGENTS.md", "enterprise governance", "adoption"]
+author: "Naresh Babu"
+---
+
+# GitHub Copilot for *Enterprise*
+
+## A Deep Dive on Adoption
+
+*From scattered pilots to a governed, scaled rollout.*
+
+**Agent Mode · Coding Agent · Custom Agents · MCP Servers · Agent HQ · Enterprise Governance**
+
+---
+
+## The Enterprise Problem
+
+Most enterprises adopting GitHub Copilot today look like this:
+
+- **Scattered pilots.** A few teams use Agent Mode in VS Code. A different team is experimenting with the cloud Coding Agent. Nobody has a shared mental model.
+- **Unclear controls.** Security and platform teams cannot answer: *which agents are allowed, which models, which MCP servers, who reviews what?*
+- **Inconsistent quality.** Without `AGENTS.md`, custom agents, or MCP servers in place, every developer gets a different experience and the tool fails to compound.
+- **No measurement.** Adoption, accept rate, and PR throughput aren't tracked, so leadership can't tell whether the investment is paying back.
+
+**The platform is ready for enterprise scale. Most adoption programs are not.**
+
+---
+
+## The Solution — A Five-Layer Adoption Model
+
+A successful enterprise rollout aligns five distinct layers of the platform. Confusing them is the most common adoption mistake.
+
+1. **Agent Mode (IDE)** — Synchronous developer experience
+2. **Coding Agent (Cloud)** — Asynchronous issue-to-PR delivery
+3. **Custom Agents** — Specialized, scoped personas via `.agent.md`
+4. **MCP Servers** — Tools and data the agents can reach
+5. **Agent HQ** — The enterprise control plane that ties it all together
+
+The rest of this deck walks each layer, what it does, what it controls, and what an enterprise adoption program needs to put in place for each.
+
+---
+
+## Layer 1 — Agent Mode (IDE, Synchronous)
+
+**What it is:** Copilot inside the IDE (VS Code, JetBrains) running a real-time agentic loop. The developer gives it a goal; it plans, edits multiple files, runs tests, and self-heals on errors — while the developer watches.
+
+**Key control file:** `AGENTS.md` in the repo root. Defines coding standards, tool preferences, and guardrails. Version-controlled and shared with the team.
+
+**Where it runs:** Local machine or Codespace. Synchronous — the developer is present while it works.
+
+**Adoption requirements:**
+- A repo-level `AGENTS.md` template that every team can fork
+- Standards for tool preferences, guardrails, and review expectations
+- Developer enablement on prompting and review patterns
+
+**Reference:** [Agent Mode 101 — GitHub Blog](https://github.blog/ai-and-ml/github-copilot/agent-mode-101-all-about-github-copilots-powerful-mode/) · [Agent Mode + MCP Tutorial](https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp)
+
+---
+
+## Layer 2 — Coding Agent (Cloud, Async)
+
+**What it is:** Assign a GitHub Issue to `@copilot` and walk away. It spins up a GitHub Actions ephemeral runner, writes code, runs tests, and opens a PR. Asynchronous — the developer comes back to a review.
+
+**Key security facts:**
+- Agent never pushes to main. Always opens a draft PR.
+- Network firewall blocks external calls unless explicitly allowlisted.
+- CODEOWNERS rules still apply.
+
+**Adoption requirements:**
+- Enterprise admin enables it via the Policies page
+- Issue templates that produce well-scoped tasks the agent can succeed on
+- Review workflow that treats agent PRs the same as human PRs (or stricter)
+
+**Reference:** [About Copilot Cloud Agent — Docs](https://docs.github.com/copilot/concepts/agents/coding-agent/about-coding-agent) · [What's New (Feb 2026)](https://github.blog/ai-and-ml/github-copilot/whats-new-with-github-copilot-coding-agent/)
+
+---
+
+## Layer 3 — Custom Agents (Specialized Personas)
+
+**What it is:** A Markdown file (`.agent.md`) that defines a specialist version of the coding agent — its name, model, tool list, and behaviour prompt. Drop it into `.github/agents/` and it appears in the agent picker.
+
+**Three scopes:**
+- **Repo-level:** `.github/agents/`
+- **Org-level:** via `.github-private` repo
+- **Enterprise-level:** also via `.github-private`, available across all org repos
+
+**Adoption requirements:**
+- A starter library of organization-approved custom agents (test-specialist, security-reviewer, migration-helper)
+- Authoring guidelines so teams can build their own without diverging on quality
+- A publishing workflow from repo → org → enterprise scope
+
+**Reference:** [Creating Custom Agents — Docs](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents) · [Browse Live Agent Examples](https://awesome-copilot.github.com/agents/)
+
+---
+
+## Layer 4 — MCP Servers (Tool Extensions)
+
+**What it is:** Model Context Protocol — an open standard (Anthropic-originated, now industry-wide) for connecting agents to external tools and data sources. Each MCP server exposes typed tools: `get_incident(id)`, `list_oncall()`, etc.
+
+**Enterprise control:**
+- MCP is **disabled by default** for org/enterprise users. Admins must enable it.
+- The allowlist in `.github/mcp.json` controls which servers agents can reach.
+- The GitHub MCP Registry (in VS Code) lets developers discover and install servers in one click.
+
+**Adoption requirements:**
+- An approved-MCP-server allowlist (security, observability, ticketing, design system)
+- A private MCP Registry for enterprise-internal servers
+- OAuth and credential handling standards (`COPILOT_MCP_` secrets)
+
+**Reference:** [MCP and Coding Agent — Docs](https://docs.github.com/en/copilot/concepts/agents/coding-agent/mcp-and-coding-agent) · [Extending Coding Agent with MCP](https://docs.github.com/copilot/how-tos/agents/copilot-coding-agent/extending-copilot-coding-agent-with-mcp)
+
+---
+
+## Layer 5 — Agent HQ (Enterprise Control Plane)
+
+*New since Universe 2025 — the centralized control plane for agentic development.*
+
+**Policy:** Centralized control over which agents (Copilot, Claude, Codex, Gemini) are allowed per org or team. Manage model allowlists, MCP server access, and feature toggles from one place.
+
+**Security:** Cloud agent firewall blocks external network access by default. Audit logs for all agent events. Agent sessions are steerable and inspectable in real time from Mission Control.
+
+**Publishing:** Three-tier catalog — repo (`.github/agents/`), org, or enterprise (`.github-private`). Public community publishing via `github/awesome-copilot`. Private MCP Registry for enterprise-internal servers.
+
+**Observability:** Copilot Metrics Dashboard (public preview) gives org-wide adoption, accept rate, and PR throughput. Usage API replaces old CSV exports. Cost and chargeback per team.
+
+**Reference:** [Agent HQ Announcement — GitHub Blog](https://github.blog/news-insights/company-news/welcome-home-agents/) · [Well-Architected: Governing Agents](https://wellarchitected.github.com/library/governance/recommendations/governing-agents/)
+
+---
+
+## The Adoption Journey — Four Phases
+
+A working enterprise rollout moves through four phases. Skipping ahead is the second-most-common failure mode (after confusing the layers).
+
+1. **Orientation** — Establish the shared mental model across developers, platform, and security teams.
+2. **Mechanics** — Get hands-on with Coding Agent and Custom Agents on real internal work.
+3. **MCP + Governance** — Wire in the tool layer and the enterprise controls together.
+4. **Synthesis** — Author the organization's standards and scale across teams.
+
+The remaining slides walk each phase as a concrete, sequenced program — videos to watch, docs to read, and artifacts to build.
+
+---
+
+## Watch First — Foundational Platform Understanding
+
+> **Tip:** Start with the Universe 2025 keynote — it's the best 60-minute overview. Then watch the GitHub Checkout deep-dive and Agent Mode launch before anything else.
+
+**1. [GitHub Universe 2025 Day 1 Keynote — Agent HQ Announced](https://www.youtube.com/watch?v=nSwj2Ma0pnk)** *(~60 min · Oct 2025)*
+The complete Day 1 keynote. Agent HQ, Mission Control, AGENTS.md, MCP Registry, enterprise control plane, Copilot Metrics Dashboard, third-party agents (Claude, Codex). The definitive overview of where the platform stands today.
+
+**2. [Introducing the Copilot Coding Agent — Official Launch](https://www.youtube.com/watch?v=EPyyyB23NUU)** *(~5 min · May 2025)*
+Microsoft Build 2025 launch. The issue-to-PR workflow, ephemeral Actions runner, enterprise security model, and what the agent excels at (low-to-medium complexity tasks in well-tested codebases).
+
+**3. [How the Coding Agent Works — GitHub Checkout](https://www.youtube.com/watch?v=1GVBRhDI5No)** *(~15 min · May 2025)*
+The clearest end-to-end walkthrough of the agent: assigning an issue, watching it plan, monitoring session logs, reviewing the PR.
+
+**4. [Copilot: The Agent Awakens — Agent Mode Launch](https://www.youtube.com/watch?v=C95drFKy4ss)** *(~10 min · Feb 2025)*
+The Agent Mode launch in VS Code. Next edit suggestions, Agent Mode mechanics, how it reads the workspace, runs terminal commands, and self-heals.
+
+---
+
+## Deep Dive — Coding Agent Mechanics
+
+**[Demo: End-to-End Agentic Development with Copilot](https://www.youtube.com/watch?v=onVn-lnHZ9s)** *(~12 min · Aug 2025)*
+Full demo from issue assignment through to merged PR. Codespaces as the dev environment — no local installation needed.
+
+**[What's New with the Copilot Coding Agent — GitHub Checkout Update](https://www.youtube.com/watch?v=t4ERV6aHCPM)** *(~18 min · Sep 2025)*
+Latest updates: model picker, self-review before PR, built-in code/secret scanning, and custom agents. Shows assigning a task from anywhere and coming back to a finished PR.
+
+**[Copilot Agent Writes Code AND Tests — Should You Be Worried?](https://www.youtube.com/watch?v=45Fv0Rx31Zk)** *(~20 min · Jul 2025)*
+Honest community deep-dive on the agent generating Playwright and UI tests. What it gets right vs. where it needs steering — useful for setting realistic enterprise quality expectations.
+
+---
+
+## Building — Agent Mode, MCP, and Custom Agents
+
+**[Building Applications with Copilot Agent Mode](https://www.youtube.com/watch?v=XnC6cF1v5OY)** *(~25 min · Apr 2025)*
+Hands-on demo of rapidly building a full application using Agent Mode. A practical baseline before trying it on a real internal use case.
+
+**[Piloting Agents in Copilot — Christopher Harrison, Microsoft](https://www.youtube.com/watch?v=DdaAABdAqZY)** *(~30 min · Jul 2025)*
+Microsoft Developer deep-dive. Pattern discovery, code generation, tool use, and peer programming. Solid technical depth on the agent loop.
+
+**[GitHub Copilot Full Series — Official Playlist](https://www.youtube.com/playlist?list=PLj6YeMhvp2S5_hvBl2SE-7YCHYlLQ0bPt)** *(Series · YouTube)*
+Official Copilot playlist across languages and project types — TypeScript, Python, Java, and more. A reference for stack-specific learning.
+
+**[GitHub Dec 2025 Enterprise Roundup — Governance Sessions](https://resources.github.com/enterprise-content-roundup/december/)** *(Multiple · resources.github.com)*
+Hub with 6+ full-length sessions from Ignite 2025 and Universe 2025 — "AI agents at scale" (44 min), "Balancing security and developer productivity" (45 min), "Agentic DevOps migration from Azure Repos" (45 min).
+
+---
+
+## Official Docs — Concepts (Read First)
+
+**01. [About GitHub Copilot Cloud Agent](https://docs.github.com/copilot/concepts/agents/coding-agent/about-coding-agent)**
+The conceptual overview: what the coding agent does, what it can't do, the plan/edit/PR lifecycle, how custom agents specialize it, and plan availability. Read this *before* the how-to docs.
+
+**02. [MCP and Copilot Cloud Agent](https://docs.github.com/en/copilot/concepts/agents/coding-agent/mcp-and-coding-agent)**
+MCP integration with the coding agent. What's supported (tools only — not resources or prompts), the default servers (GitHub, Playwright), and what needs enterprise configuration.
+
+**03. [Copilot Features — Complete Feature Map](https://docs.github.com/en/copilot/get-started/features)**
+The master feature reference. Which features are on which plan (Pro, Business, Enterprise), what's GA vs preview, and how all surfaces relate. Updated weekly.
+
+---
+
+## Official Docs — How-To (Build & Configure)
+
+**04. [Creating Custom Agents for Copilot Cloud Agent](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents)**
+The canonical how-to for `.agent.md` files. YAML frontmatter (name, description, model, tools, mcp-servers), org-level vs enterprise-level agents in `.github-private`, and using agents in VS Code, CLI, and github.com.
+
+**05. [Enhancing Agent Mode with MCP — Tutorial](https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp)**
+Step-by-step combining Agent Mode with MCP servers. A full accessibility-improvement scenario, best practices (be specific, set boundaries, use OAuth, monitor activity), and tool limits per task.
+
+**06. [Extending Coding Agent with MCP — How-To](https://docs.github.com/copilot/how-tos/agents/copilot-coding-agent/extending-copilot-coding-agent-with-mcp)**
+Configuring MCP servers at the repository level via the Settings UI. The `mcpServers` JSON format, `COPILOT_MCP_` secrets, and tool scoping. Includes Azure DevOps MCP server example.
+
+**07. [Extending Copilot Chat with MCP — IDE Guide](https://docs.github.com/copilot/customizing-copilot/using-model-context-protocol/extending-copilot-chat-with-mcp)**
+Adding MCP servers to Copilot Chat in VS Code, JetBrains, and Visual Studio. Toolsets, OAuth, the GitHub MCP Registry, and MCP prompts via slash commands.
+
+---
+
+## Official Docs — Enterprise Governance
+
+**08. [Well-Architected: Governing Agents in Enterprise](https://wellarchitected.github.com/library/governance/recommendations/governing-agents/)**
+GitHub's own architectural guidance. Layered config strategy, ephemeral runners for isolation, cloud agent firewall setup, protecting agentic primitive files with rulesets, custom instruction libraries, session monitoring, and SIEM integration. **The reference document for the enterprise governance layer.**
+
+**09. [Managing Policies for Copilot — Org Level](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-for-organization/manage-policies)**
+Complete admin reference. Feature toggles per BU, model allowlist, third-party agent toggles (Claude, Codex, Gemini), MCP server policy (disabled by default), cloud agent scope, and preview opt-in.
+
+**10. [GitHub Expert Services: Copilot Agents and MCP](https://github.com/services/github-copilot-agents-and-mcp)**
+GitHub's paid expert engagement for enterprises. Useful for scoping what an enterprise needs from any external implementation partner.
+
+**11. [github/awesome-copilot — Community Marketplace](https://github.com/github/awesome-copilot)**
+The community-curated catalog of custom agents, skills, MCP servers, hooks, and plugins. Over 100 agents. Install directly from VS Code with one command.
+
+**12. [Browse Live Custom Agents](https://awesome-copilot.github.com/agents/)**
+The browseable catalog. Filter by model, tool, domain. Real examples: incident response (PagerDuty), test specialists, Oracle-to-PostgreSQL migration, LaunchDarkly feature flag agents.
+
+---
+
+## Blogs — GitHub's Primary Source
+
+**[Introducing Agent HQ: Any Agent, Any Way You Work](https://github.blog/news-insights/company-news/welcome-home-agents/)**
+The complete Universe 2025 announcement. Mission Control, Plan Mode, AGENTS.md, MCP Registry, enterprise control plane, Copilot Metrics Dashboard, Code Quality. **Read this first.**
+
+**[What's New with Copilot Coding Agent (Feb 2026)](https://github.blog/ai-and-ml/github-copilot/whats-new-with-github-copilot-coding-agent/)**
+The most recent product update. Model picker, self-review before PR, built-in code/secret/dependency scanning, custom agents in the Agents panel, CLI handoff. The current-state document.
+
+**[Agent Mode 101: All About Copilot's Powerful Mode](https://github.blog/ai-and-ml/github-copilot/agent-mode-101-all-about-github-copilots-powerful-mode/)**
+A deep technical explanation of how Agent Mode works internally — system prompt, agentic loop mechanics, tool routing, and how each tool (`read_file`, `edit_file`, `run_in_terminal`) is described to the model. Essential for anyone authoring `AGENTS.md` or custom agents.
+
+**[Build an Agent into Any App with the Copilot SDK (Jan 2026)](https://github.blog/news-insights/company-news/build-an-agent-into-any-app-with-the-github-copilot-sdk/)**
+Copilot SDK announcement (technical preview). Embed the same agentic execution loop that powers Copilot CLI in any application (Node.js, Python, Go, .NET).
+
+**[Copilot: Meet the New Coding Agent — Build 2025](https://github.blog/news-insights/product-news/github-copilot-meet-the-new-coding-agent/)**
+The Build 2025 launch post. EY's DevEx Lead quote on agent-driven teams, architectural rationale for using GitHub Actions as the compute layer, and the WRAP prompting technique for effective issue delegation.
+
+---
+
+## Blogs — Enterprise & Case Studies
+
+**[Building Agents with Copilot SDK: A Practical Guide — Microsoft Tech Community](https://techcommunity.microsoft.com/blog/azuredevcommunityblog/building-agents-with-github-copilot-sdk-a-practical-guide-to-automated-tech-upda/4488948)**
+A real implementation case study: a team uses the Copilot SDK to build an automated daily update tracker for Microsoft's Agent Framework. Full Python code, GitHub Actions workflow, `SKILL.md` for the PR analyzer agent, and lessons learned. **The most concrete production reference available.**
+
+**[Copilot Business — Enterprise Customer Stories](https://github.com/features/copilot/copilot-business)**
+Official customer evidence. Mercedes-Benz, EY, and others. Useful for the business case framing in leadership presentations.
+
+**[Nov 2025 Copilot Roundup — Community Discussion](https://github.com/orgs/community/discussions/180828)**
+Links to: how to write a great `AGENTS.md` (lessons from 2,500 repos), how Copilot helps build GitHub's own platform, MCP OAuth guide, BYOK for enterprises, and org-wide custom instructions via file-based config.
+
+**[Coding Agent GA — Community Discussion](https://github.com/orgs/community/discussions/159068)**
+The GA launch discussion. Real practitioner questions and GitHub team responses on complex project structures, `copilot-setup-steps.yml` for custom environments, and early adopter feedback.
+
+---
+
+## Independent Analysis & Hands-On Reviews
+
+**[GitHub Expands Copilot Ecosystem with AgentHQ — InfoQ](https://www.infoq.com/news/2025/11/github-copilot-agenthq/)**
+A senior-developer audience analysis. Multi-agent orchestration, the CI/CD + AI reasoning combination, and community reactions (excitement about automation vs. concerns about control/transparency). Good preparation for sceptical technical questions.
+
+**[Copilot Evolves: Agent Mode and Multi-Model Support — DevOps.com](https://devops.com/github-copilot-evolves-agent-mode-and-multi-model-support-transform-devops-workflows-2/)**
+A DevOps-angle analysis. IaC acceleration, troubleshooting via MCP+logs, workflow automation, and cross-platform integration. Mitch Ashley's "augmented to agentic development" framing.
+
+**[GitHub Maps the Agentic Development Universe — Futurum Group](https://futurumgroup.com/insights/github-boldly-maps-out-the-agentic-development-universe/)**
+An independent analyst report on Universe 2025. The six themes of the Agentic Development Lifecycle (ADLC): agent-first workflows, intent-driven dev, multi-agent collaboration, agent identities/governance, agent control planes, and the competitive landscape (vs. Cursor, Anthropic).
+
+**[An Honest Review of Copilot Agent HQ — Harrison Milbradt](https://harrisonmilbradt.com/blog/2025-11-10-an-honest-review-of-copilot-agents-hq)**
+A practitioner review. Tested Agent HQ against ~15 real Sentry bugs: 60% resolved without steering, some needed 1-2 prompts, a few had poor solutions. Pro tips on Sentry MCP, ShadCN MCP, and using VS Code Insiders for Plan Mode.
+
+---
+
+## What an Adoption Program Has to Build
+
+Reading and watching only takes you so far. Every successful enterprise rollout produces these four artifacts — they are what turn a tool into a practice.
+
+### ① An organization-wide `AGENTS.md` template
+**Problem:** Agent Mode in VS Code ignores team standards unless they are encoded.
+**Solution:** A forkable `AGENTS.md` template at the org level with coding style rules, tool preferences ("prefer GitHub MCP over web fetch"), guardrails ("never commit without running tests"), and approved MCP server preferences.
+
+### ② A starter library of custom `.agent.md` files
+**Problem:** A coding agent with a generic prompt produces generic results. A scoped persona produces targeted, reviewable output.
+**Solution:** A curated set — `test-specialist.agent.md`, `security-reviewer.agent.md`, `migration-helper.agent.md` — published org-wide, each with explicit scope (e.g., test specialist cannot modify production code, must use the project test framework, reports coverage before/after).
+
+---
+
+## What an Adoption Program Has to Build (continued)
+
+### ③ A governed MCP server allowlist + private registry
+**Problem:** Until MCP servers are wired in, the agent is blind to internal systems (incidents, tickets, observability, design system).
+**Solution:** An approved-server allowlist in `.github/mcp.json`, a private MCP Registry for internal servers, OAuth/credentials standards (`COPILOT_MCP_` secrets), and a published process for teams to request new servers.
+
+### ④ An adoption measurement baseline
+**Problem:** Without metrics, leadership can't tell whether the investment is paying back, and adoption stalls.
+**Solution:** Stand up the Copilot Metrics Dashboard from day one. Establish baselines for adoption, accept rate, and PR throughput. Use the Usage API for cost and chargeback per team. Tie the metrics to a quarterly business review.
+
+> **The reference for all four:** [Well-Architected — Governing Agents](https://wellarchitected.github.com/library/governance/recommendations/governing-agents/), [Microsoft Tech Community Copilot SDK Case Study](https://techcommunity.microsoft.com/blog/azuredevcommunityblog/building-agents-with-github-copilot-sdk-a-practical-guide-to-automated-tech-upda/4488948).
+
+---
+
+## Phase 1 — Orientation
+
+**Goal:** Establish a shared mental model across developers, platform, and security teams.
+
+- 📺 **Watch:** [Universe 2025 Day 1 Keynote](https://www.youtube.com/watch?v=nSwj2Ma0pnk) *(~60 min)* — The best single overview. Focus on the Agent HQ section (first 25 min) and the enterprise control plane demo.
+- 📺 **Watch:** ["The Agent Awakens" — Agent Mode Launch](https://www.youtube.com/watch?v=C95drFKy4ss) *(~10 min)* — Agent Mode in VS Code, what `AGENTS.md` does, why the IDE surface is where every developer starts.
+- 📖 **Read:** [Agent HQ Announcement](https://github.blog/news-insights/company-news/welcome-home-agents/) *(~20 min)* — The canonical text complement to the keynote. Note GA vs preview features.
+- 📖 **Read:** [About Copilot Cloud Agent — Concepts](https://docs.github.com/copilot/concepts/agents/coding-agent/about-coding-agent) *(~15 min)* — Understand async coding agent vs sync Agent Mode before going deeper.
+- ✍️ **Reflect:** *(~15 min)* — Document the three areas of current understanding most in need of updating. Primes attention for Phase 2.
+
+---
+
+## Phase 2 — Mechanics
+
+**Goal:** How the coding agent and custom agents actually work — from the inside.
+
+- 📺 **Watch:** [How the Coding Agent Works — GitHub Checkout](https://www.youtube.com/watch?v=1GVBRhDI5No) *(~15 min)* — The clearest end-to-end issue-to-PR demo. Watch twice; second time with the docs page open alongside.
+- 📺 **Watch:** [What's New with Coding Agent (Sep 2025)](https://www.youtube.com/watch?v=t4ERV6aHCPM) *(~18 min)* — Model picker, self-review, security scanning, custom agents in the Agents panel.
+- 📖 **Read:** [Agent Mode 101 — How the Agentic Loop Works](https://github.blog/ai-and-ml/github-copilot/agent-mode-101-all-about-github-copilots-powerful-mode/) *(~20 min)* — System prompt, tool descriptions, how the agent chooses tools. A prerequisite for writing effective `AGENTS.md`.
+- 📖 **Read:** [Creating Custom Agents — Official How-To](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/create-custom-agents) *(~20 min)* — Walk through every YAML frontmatter property; note the three scope levels.
+- ⌨️ **Build:** Author a `test-specialist.agent.md` in a sandbox repo *(~45 min)* — Assign one real GitHub issue. Review the PR. Worth more than two hours of additional reading.
+
+---
+
+## Phase 3 — MCP + Governance
+
+**Goal:** Wire in the tool layer and the enterprise controls together.
+
+- 📖 **Read:** [Well-Architected: Governing Agents in Enterprise](https://wellarchitected.github.com/library/governance/recommendations/governing-agents/) *(~40 min)* — The most important document for the enterprise context. Layered config, ephemeral runners, firewall, rulesets protecting agentic files, SIEM hooks.
+- 📖 **Read:** [Enhancing Agent Mode with MCP — Tutorial](https://docs.github.com/en/copilot/tutorials/enhance-agent-mode-with-mcp) *(~25 min)* — End-to-end with a real accessibility scenario. The "best practices" section transfers directly to enterprise agent authoring guidelines.
+- 📖 **Read:** [Managing Policies — Org-Level Admin Controls](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-for-organization/manage-policies) *(~20 min)* — Every policy toggle. How enterprise-level and org-level policies combine.
+- 📺 **Watch:** [Dec 2025 Enterprise Roundup — Governance Sessions](https://resources.github.com/enterprise-content-roundup/december/) *(~45 min)* — At minimum, "AI agents at scale" (44 min). The most enterprise-relevant video content available.
+- ⌨️ **Build:** Add a public MCP server via the VS Code Registry *(~30 min)* — Install Sentry MCP. Notice the admin policy that would normally block it. Give the agent a prompt that uses a Sentry tool.
+
+---
+
+## Phase 4 — Synthesis
+
+**Goal:** Author the organization's standards and prepare to scale across teams.
+
+- 📖 **Read:** ["What's New with Coding Agent" (Feb 2026) — The Current State](https://github.blog/ai-and-ml/github-copilot/whats-new-with-github-copilot-coding-agent/) *(~15 min)* — Model picker, self-review, code/secret scanning built in. The current product state.
+- 📖 **Read:** [Microsoft Tech Community Copilot SDK Case Study](https://techcommunity.microsoft.com/blog/azuredevcommunityblog/building-agents-with-github-copilot-sdk-a-practical-guide-to-automated-tech-upda/4488948) *(~20 min)* — The most concrete production implementation available. Full Python code and GitHub Actions workflow.
+- 📖 **Browse:** [awesome-copilot Agent Catalog](https://awesome-copilot.github.com/agents/) *(~20 min)* — Twenty minutes browsing real custom agents. Identify two or three adaptable for the enterprise's scenarios (incident triage, test backfill, dependency management).
+- ✍️ **Author:** The organization's three core artifacts *(~60 min)* — (1) an Agent HQ / control-plane summary, (2) the `.agent.md` and `AGENTS.md` template pair, (3) a reference architecture with Agent HQ as the cross-cutting layer.
+- ⌨️ **Demo:** A live walkthrough — one `.agent.md`, one `SKILL.md`, one MCP server, end-to-end *(~45 min)* — The artifact that anchors developer enablement sessions.
+
+---
+
+## What Success Looks Like
+
+By the end of a four-phase rollout, the organization will have:
+
+- **Authored** an `AGENTS.md` template, a starter library of custom `.agent.md` agents, and a governed MCP server allowlist
+- **Watched** every foundational session — keynote, launch demos, and governance content — across the relevant audiences
+- **Read** the canonical concepts, how-tos, and Well-Architected governance guidance
+- **Reviewed** real enterprise case studies (Mercedes-Benz, EY, Microsoft's own implementation) and adapted the patterns
+- **Stood up** a Copilot Metrics baseline so leadership can track adoption, accept rate, and PR throughput
+
+> *The platform moves fast. Treat the playbook as a living artifact — re-check the GitHub Blog and Well-Architected library quarterly to stay current.*
+
+---
+
+## Continue the Conversation
+
+**Naresh Babu**
+Technology Advisor · Agentic AI Practice
+
+[nareshbabu.me](https://nareshbabu.me) · [nareshbabu.me/contact](https://nareshbabu.me/contact)
+
+*Bring me a Copilot rollout, a governance question, or an agent that almost works — and I'll show you what the path forward looks like.*
