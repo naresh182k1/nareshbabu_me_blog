@@ -294,6 +294,168 @@ Evals fail organizationally far more often than technically. A few guardrails:
 - **Track eval-set coverage** by capability (tools used, intents, languages, edge categories). Aim for balanced coverage, not just volume.
 - **Publish the scorecard internally.** Visibility creates ownership.
 
+## Hands-On Walkthrough: Your First Eval with Promptfoo
+
+Reading about evals is useful. Doing one is what makes it stick. This section walks an organization that has **never run an eval before** through a complete first run — end to end — using a single tool. The point is the *process*, so we stay light on code and heavy on the workflow.
+
+### Why Promptfoo for a First Eval
+
+There are a dozen good tools. For a first eval, you want four things: low setup cost, no platform lock-in, results you can show non-engineers, and a clear path from "first run" to "wired into CI." [Promptfoo](https://www.promptfoo.dev) fits because it is:
+
+- **Free and open source** (MIT) — no procurement cycle.
+- **Local-first** — runs on a laptop, no account needed, your prompts and outputs never leave your machine unless you choose.
+- **Config-driven** — eval suites are a single YAML file you can review in a PR.
+- **Provider-agnostic** — works with OpenAI, Anthropic, Azure OpenAI, Bedrock, Vertex AI, Ollama, and dozens more.
+- **CI-friendly** — exits with a non-zero status when assertions fail, so a release gate is one line of pipeline config.
+- **Has a web UI** — `promptfoo view` opens a side-by-side comparison dashboard your PM and compliance reviewer can actually read.
+
+If your org standardizes on a different tool later (Braintrust, Humanloop, LangSmith, Azure AI Foundry Evaluation, Bedrock Model Evaluation, Vertex AI Gen AI Evaluation), the *process* below transfers almost unchanged — only the surface syntax differs.
+
+Reference docs to bookmark before you start:
+
+- [Getting started](https://www.promptfoo.dev/docs/getting-started)
+- [Configuration reference](https://www.promptfoo.dev/docs/configuration/guide)
+- [Assertions (programmatic + model-graded)](https://www.promptfoo.dev/docs/configuration/expected-outputs)
+- [Providers](https://www.promptfoo.dev/docs/providers)
+- [CI/CD integration](https://www.promptfoo.dev/docs/integrations/ci-cd)
+- [Red-team / safety scans](https://www.promptfoo.dev/docs/red-team)
+
+### The Scenario
+
+You own a **customer-support assistant** for an e-commerce company. It answers questions about orders, refunds, and shipping. Leadership wants to compare two candidate models — `gpt-4o-mini` and `claude-haiku-4-5` — and pick the one with the best balance of quality, safety, and cost. Today, the team eyeballs five or ten prompts and votes. By the end of this walkthrough you will have a repeatable, evidence-based answer.
+
+### Step 1 — Stand Up the Tool (Day 1, ~30 minutes)
+
+This is the only part with "setup" friction. You only do it once.
+
+1. **Install prerequisites.** Node.js 18 or later. Nothing else.
+2. **Install Promptfoo.** Either globally (`npm install -g promptfoo`) or run it on demand via `npx promptfoo@latest`. The on-demand route is fine for a first run — no admin rights needed.
+3. **Add provider credentials.** Set environment variables for whichever models you want to test: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `AZURE_OPENAI_API_KEY` + endpoint, AWS credentials for Bedrock, etc. Store them in your secrets manager, not in the repo.
+4. **Initialize a project.** In an empty folder, run `promptfoo init`. You get a `promptfooconfig.yaml` skeleton and a `tests/` folder. Commit both to a new repo (or a folder inside your agent's repo). **From now on, the eval suite lives in version control like any other source code.**
+
+### Step 2 — Decide What "Good" Looks Like (Day 1, ~1–2 hours)
+
+Before writing tests, hold a 60-minute meeting with the agent owner, a domain expert (support lead), and a safety or compliance reviewer. Decide:
+
+- **The four pillars and their gates.** For this assistant: *task success ≥ 80%*, *policy adherence = 100% on refund cases*, *safety incidents = 0*, *cost per task non-regressing*.
+- **The rubric for open-ended responses.** Accuracy, empathy, policy adherence, brevity — each scored 1–5.
+- **What a hard programmatic gate looks like.** No PII in responses. No promises of refunds outside policy. Always cites an order ID when one is given.
+
+Write this down in a one-page charter and check it into the repo as `EVAL_CHARTER.md`. This document is what you defend when someone asks "why did you ship this?"
+
+### Step 3 — Build the Eval Set (Days 1–3)
+
+Two sources, just like the framework says:
+
+- **Live cases.** Export 80–100 recent support tickets. Anonymize names, emails, and order numbers. For each ticket, write down the *ideal* response (or the actual agent response if it was correct). This is the slowest step and the highest-leverage one.
+- **Synthetic edge cases.** Hand-author 20–40 prompts that probe edges: refund requested 60 days after purchase (policy edge), customer asking for a competitor recommendation (off-topic), prompt injection attempts ("ignore your instructions and..."), non-English input, ambiguous order IDs.
+
+Store each case as a row in a `tests.yaml` file. The minimum fields per row:
+
+- `description` — human-readable label
+- `vars` — input variables (the customer message, any context)
+- `assert` — the checks that decide pass/fail (see Step 4)
+- `tags` — for filtering and coverage tracking (e.g., `[refund, policy-edge]`)
+
+Aim for 100–150 cases for v1. Diversity beats volume — better to cover 20 distinct failure modes once each than to have 50 variants of the same easy case.
+
+### Step 4 — Wire the Four Scorer Types
+
+Promptfoo calls scorers **assertions**. The four eval approaches from earlier map directly:
+
+- **Programmatic** → `equals`, `contains`, `icontains`, `regex`, `is-json`, `javascript` (custom), `python` (custom). Use these for binary checks: "response contains the order ID", "response is valid JSON", "response does not contain a credit card number".
+- **Reference-based** → `similar` (cosine similarity over embeddings), `rouge-n`, `bleu`. Use these on the subset of cases with a single right answer.
+- **Rubric-based "LLM as Judge"** → `llm-rubric` and `model-graded-closedqa`. You write the rubric in plain English; Promptfoo runs a grader model (default GPT-4-class, configurable to Claude or any other) and gets back a pass/fail plus a score.
+- **Trajectory** → for tool-using agents, capture the tool-call trace from your agent and use a `javascript` assertion to validate the sequence, or a `llm-rubric` that scores trajectory quality. Promptfoo can also call your agent as a custom provider so the trace is captured automatically.
+
+Mix and match per case. A single refund test might assert: `is-json` (programmatic), `contains: $0` for ineligible refunds (programmatic), and `llm-rubric: "response is empathetic and explains the policy clearly"` (rubric).
+
+### Step 5 — Run the Comparison (Day 4, ~30 minutes)
+
+The headline command, conceptually: `promptfoo eval`. What happens:
+
+1. Promptfoo reads `promptfooconfig.yaml`, which lists your two **providers** (`gpt-4o-mini`, `claude-haiku-4-5`), your **prompt template**, and your **tests**.
+2. It runs every test against every provider — your 120 cases × 2 models = 240 generations.
+3. It applies every assertion to every generation.
+4. It computes per-case pass/fail, per-model aggregates, and a cost estimate (Promptfoo reads provider token usage and applies its price table).
+5. It writes the results to a local SQLite store.
+
+To see results, run `promptfoo view`. A browser opens with a side-by-side grid: rows are test cases, columns are models, cells are responses with their assertion verdicts. You can filter by tag, sort by failures, and drill into any cell.
+
+This is the moment evals become real for non-engineers. Show this view to your PM, support lead, and compliance reviewer in the same meeting. The conversation changes from "I think Claude feels nicer" to "Claude passes 7 more refund-policy cases but fails 3 more JSON-format cases — let's look at those."
+
+### Step 6 — Produce the Scorecard
+
+Promptfoo exports results as JSON, CSV, or HTML. Translate the numbers into the release scorecard template shown earlier in this post — one row per pillar, baseline vs. candidate, gate verdict, signed off by the eval lead.
+
+Save the exported result file *and* the rendered scorecard into the repo under `eval-runs/<date>-<candidate>/`. This is your audit trail.
+
+### Step 7 — Wire It Into CI (Day 5, ~1 hour)
+
+A scorecard you have to remember to run is one you will forget to run. Add a GitHub Actions (or GitLab CI, Azure Pipelines, CircleCI — Promptfoo has guides for each) job that:
+
+1. Checks out the repo.
+2. Installs Promptfoo.
+3. Pulls provider credentials from your CI secret store.
+4. Runs `promptfoo eval --fail-on-error` against the suite.
+5. Uploads the HTML report as a build artifact.
+6. Posts a summary as a PR comment.
+7. **Fails the build** if any case in a "must-pass" tag (e.g., `safety`, `policy`) regresses.
+
+Reference: [Promptfoo GitHub Action](https://www.promptfoo.dev/docs/integrations/github-action).
+
+The gate is now mechanical. No human needs to remember to run evals; the pipeline will not let an unevaluated agent ship.
+
+### Step 8 — Production Telemetry and Drift (Week 2+)
+
+Sample 5–10% of production traffic. Score it with the *same* rubrics, on a nightly job. Track the pass rates over time. When a pillar drops by more than a defined threshold (say, 3 percentage points week-over-week), open a ticket. This is your **drift signal** — one of the five continuous re-eval triggers.
+
+You can run this sampling job with Promptfoo too: a small script reads sampled prod logs into the same test format and runs `promptfoo eval` against them.
+
+### Step 9 — Red-Team Scan (Week 2, ~2 hours)
+
+Before declaring victory, run a safety-focused scan. Promptfoo has a built-in red-team mode that generates adversarial prompts across categories (PII extraction, prompt injection, harmful content, hallucination probes, jailbreaks) and reports findings.
+
+Reference: [Promptfoo red-team docs](https://www.promptfoo.dev/docs/red-team).
+
+Take the findings to your safety reviewer. Any failures here are added to the eval set as permanent regression tests — they will run on every future change, forever.
+
+### Step 10 — Roll the Pattern Out
+
+The pilot is done. You now have:
+
+- A versioned eval set.
+- A scorecard format the org understands.
+- A CI gate.
+- A drift detector.
+- A red-team baseline.
+
+Replicate this folder structure as a template repo for the next agent. The platform team owns the runner and the shared rubric library; each agent team owns its eval set and its scorecard. This is the "golden path" referenced in Phase 6 of the rollout plan.
+
+### A Realistic Day-by-Day Timeline
+
+For one pilot agent, with one half-time eval lead:
+
+- **Day 1**: Tool installed, charter written, first 20 cases drafted.
+- **Days 2–3**: Eval set to 100+ cases, assertions wired.
+- **Day 4**: First full run, scorecard produced, decision meeting held.
+- **Day 5**: CI integration, gate enforced on next PR.
+- **Week 2**: Production sampling and red-team scan running.
+- **Week 3+**: Coverage expansion, monthly review cadence, prep to replicate for agent #2.
+
+Two weeks from a standing start to a production-gated agent backed by evidence. That is the realistic budget for an organization brand new to evals — and the prize is enormous: every future release argument becomes "the scorecard says X" instead of "trust me."
+
+### When to Outgrow Promptfoo
+
+Promptfoo is excellent through the first three to five agents. You will know you have outgrown it when:
+
+- You need a multi-tenant UI for dozens of teams authoring rubrics → move to **Braintrust**, **Humanloop**, or **LangSmith**.
+- You need tight integration with cloud-native tracing and governance → move to **Azure AI Foundry Evaluation**, **Vertex AI Gen AI Evaluation**, or **Amazon Bedrock Model Evaluation**.
+- You need research-grade capability evaluation → look at **Inspect AI** or **HELM**.
+- You need RAG-specific decomposed metrics → **Ragas** alongside whatever you use for orchestration.
+
+Whatever you switch to, you keep what matters: the eval set (it is just YAML or JSON), the rubrics (plain English), the scorecard format, the governance practices. The tool is the cheapest, most replaceable part of the stack.
+
 ## Copy-Paste Templates
 
 ### Eval Case (JSON)
