@@ -1,0 +1,373 @@
+---
+title: "The Evals Framework for Agents: A Self-Help Guide to Implementing Evals in Any Organization"
+description: "A crystal-clear, beginner-friendly guide to building an evaluation framework for AI agents — covering the four complementary eval approaches, an agentic eval pipeline, the agent types you can test, tooling across open source, Anthropic, OpenAI, Azure, GCP, and AWS, and a turnkey rollout plan with checklists and templates."
+pubDate: "2026-05-12"
+heroImage: "/images/blog/evals-framework.svg"
+category: "AI & Enterprise"
+tags: ["evals", "AI agents", "LLM evaluation", "agentic AI", "MLOps", "AI governance", "trajectory eval", "LLM as judge"]
+author: "Naresh Babu"
+readingTime: "18 min read"
+---
+
+## Why This Guide Exists
+
+If you have shipped — or are about to ship — an AI agent, you already know the uncomfortable truth: a demo is not a product. The model that looked brilliant in a notebook can fail silently in production, pick the wrong tool, hallucinate a number, or quietly cost ten times what it should. The discipline that catches these failures *before* your customers do is called **evals**.
+
+This post is a self-help guide. No prior expertise assumed. By the end you will know what evals are, the four complementary approaches that make up a complete framework, the kinds of agents you can test, the tooling landscape across open source and the major clouds, and a step-by-step plan to roll out evals inside your organization — with checklists and templates you can copy.
+
+## What "Evals" Actually Means
+
+An **eval** (short for *evaluation*) is a repeatable test that measures whether an AI system does what you want, at the quality you need, within the constraints you care about (cost, latency, safety, tone). Think of evals as the unit tests, integration tests, and release gates of the LLM era — except the system under test is non-deterministic, the inputs are open-ended, and "correct" is sometimes a judgment call rather than a boolean.
+
+Three plain-English ideas to anchor on:
+
+- **Eval set**: the curated collection of test cases — inputs plus what "good" looks like.
+- **Scorer**: the mechanism that decides whether an output is good (a string comparison, a rule, another LLM, a human).
+- **Scorecard**: the aggregated result you read to decide whether to ship.
+
+That is it. Everything below is a refinement of those three ideas.
+
+## The Eval Framework: Four Complementary Approaches
+
+No single scoring method covers every agent behavior you care about. A mature program uses four approaches **in combination, not in isolation**. Each has a sweet spot and a failure mode.
+
+### 1. Reference-Based Evals
+
+**What it is.** Compare model output to a curated *golden answer set*. Best for closed-domain tasks with known correct answers. Supports exact match, fuzzy string similarity, BLEU, and ROUGE scoring.
+
+**When to use it.** When you have a ground-truth dataset and the answer space is constrained — classification, extraction, structured Q&A, code that must equal a specific string.
+
+**Watch out for.** Breaks on open-ended or generative tasks where multiple valid answers exist. A correct paraphrase will be scored wrong.
+
+**Concrete example.** A document-extraction agent that pulls invoice totals. The golden set is `{invoice_id → expected_total}`. Exact match is sufficient and unambiguous.
+
+### 2. Rubric-Based "LLM as Judge"
+
+**What it is.** A second LLM scores the output against a structured rubric: helpfulness, factual accuracy, safety, tone, and format. Scales to thousands of test cases without human review for every run.
+
+**When to use it.** When the answer space is open and you need nuanced quality scoring at scale — summarization, chat, drafting, advisory responses.
+
+**Watch out for.** The judge model can be gamed or biased (it tends to favor verbosity, its own style, the first option presented). Always **validate judge calibration against human labels** on a sample before trusting it at scale.
+
+**Concrete example.** A customer-support agent. The rubric scores each response 1–5 on accuracy, empathy, brevity, and policy adherence. A human-labeled sample of 200 cases is used to confirm the judge agrees with humans ≥ 85% of the time.
+
+### 3. Programmatic Evals
+
+**What it is.** Custom Python or TypeScript logic: regex pattern matching, JSON schema validation, API call verification, numeric range checks. Deterministic, fast, and zero hallucination risk.
+
+**When to use it.** When correctness is binary and checkable by rule — format, presence, structure. Did the agent return valid JSON? Did the SQL parse? Is the dollar amount within the expected range?
+
+**Watch out for.** Cannot evaluate quality, tone, or reasoning. Best used as a **hard gate**, not a full eval. A response can pass every programmatic check and still be terrible.
+
+**Concrete example.** A tool-calling agent must emit a JSON object matching a schema with fields `{tool, args, reasoning}`. The check is a schema validator. Fail = the response never reaches the next layer.
+
+### 4. Trajectory Evals
+
+**What it is.** Evaluate the *sequence of reasoning steps and tool calls*, not just the final answer. Did the agent pick the right tools in the right order? Did it loop unnecessarily? Were the intermediate decisions sound?
+
+**When to use it.** Multi-step agents with tool use, planners, or RAG chains where the path matters as much as the destination.
+
+**Watch out for.** Requires trace logging. Expensive to annotate at scale. **Essential for agentic pipelines** — without it you cannot diagnose why an agent failed, only that it did.
+
+**Concrete example.** A research agent that should `search → read → summarize → cite`. A trajectory eval catches the failure mode where it summarizes from the search snippet without reading, or calls the same search five times in a row.
+
+### How the Four Fit Together
+
+Picture a funnel:
+
+- **Programmatic** is the structural gate — does the output have the right shape?
+- **Reference-based** is the precision check — for the subset of tasks with known answers.
+- **LLM-as-judge** is the quality scorer — for the open-ended majority.
+- **Trajectory** is the diagnostic — why did the pipeline succeed or fail?
+
+You want all four. Skipping one creates a blind spot that production will eventually find.
+
+## What You Can Evaluate: A Taxonomy of Agents
+
+The framework applies to far more than chat. If your system makes decisions, calls tools, or generates content, it is evaluable.
+
+- **Single-turn Q&A agents.** FAQ bots, classifiers, extractors. Mostly reference-based + programmatic.
+- **Conversational assistants.** Customer support, internal helpdesks. Heavy on LLM-as-judge with conversation-level rubrics.
+- **Tool-using agents.** Function-calling agents that hit APIs, databases, or MCP servers. Programmatic for tool-call shape, trajectory for tool-use correctness.
+- **RAG agents.** Retrieval-augmented systems. Reference-based on retrieved-context recall, LLM-as-judge on faithfulness, trajectory on the retrieve→read→answer chain.
+- **Planning / multi-step agents.** Agents that decompose tasks. Trajectory eval is non-negotiable.
+- **Coding agents.** Code generators, refactoring agents, PR reviewers. Programmatic via tests and linters, reference-based via expected diffs, LLM-as-judge for code review quality.
+- **Multimodal agents.** Vision, audio, document understanding. Reference-based on labeled regions or transcripts, LLM-as-judge for descriptions.
+- **Voice and real-time agents.** Latency and turn-taking become first-class metrics alongside correctness.
+- **Multi-agent / orchestrated systems.** Each sub-agent gets its own scorecard plus a system-level trajectory eval over the orchestration.
+- **Embedded / on-device agents.** Same evals, plus tight cost and latency budgets in the scorecard.
+
+## The Agentic Eval Pipeline: Every Agent Earns Its Promotion
+
+A framework is theory. A *pipeline* is what you actually run. The pipeline has four steps and one rule: **an agent ships only if it beats the baseline.**
+
+### Step 1 — Build the Eval Set
+
+Curated tasks with golden outputs, produced by the team that owns the agent. Mix two sources:
+
+- **Live tickets.** Real cases pulled from production logs, support queues, or user transcripts.
+- **Synthetic edge cases.** Hand-crafted prompts that probe known weaknesses — ambiguity, hostile inputs, policy edges, long context, tool failures.
+
+Aim for 100–500 cases to start. Diversity beats volume.
+
+### Step 2 — Run Baseline + Agent
+
+Execute the same tasks two ways:
+
+- The **baseline** — the stock model, the previous agent version, or the human-completed result.
+- The **new agent** — the candidate you want to ship.
+
+Both runs must be **isolated and reproducible**: pinned model version, pinned prompts, pinned tools, fixed seed where possible, identical inputs.
+
+### Step 3 — Score on at Least Four Pillars
+
+Aggregate every case into a **release scorecard**:
+
+- **Task success rate** — did it solve the problem?
+- **Tool-use correctness** — right tool, right arguments, right order?
+- **Safety + bias** — refusals where required, no harmful content, no protected-class leakage?
+- **Cost** — tokens, tool calls, dollars per task?
+
+Add latency and any domain-specific pillars (factuality, citation rate, schema compliance).
+
+### Step 4 — Gate the Publish
+
+The agent ships **only if** the scorecard beats the baseline on success **and is non-regressing on safety and cost.** No green scorecard, no promotion. Treat this like a CI gate.
+
+### Example Release Scorecard
+
+| Metric | Result | Gate |
+| --- | --- | --- |
+| Task success rate | 80% | Beat baseline |
+| Tool-use correctness | 65% | Beat baseline |
+| Safety incidents | 0 | Must be 0 |
+| Cost per task | $0.07 → $0.055 (−22%) | Non-regressing |
+
+### Continuous Re-Evaluation Triggers
+
+Evals are not a one-time gate. Re-run the suite whenever any of these change:
+
+- Model swap or version change
+- Prompt or constitution edit
+- New MCP tool added
+- Drift signal in production telemetry
+- Quarterly schedule (default cadence, even if nothing changed)
+
+## The Tooling Landscape
+
+You do not need to build this from scratch. The ecosystem is rich — pick a layer per need and stitch.
+
+### Open-Source Frameworks and Libraries
+
+- **OpenAI Evals** — the original open eval registry; YAML-defined tests, Python graders.
+- **DeepEval** — pytest-style LLM evals with built-in metrics (faithfulness, hallucination, toxicity).
+- **Ragas** — RAG-specific metrics (context recall, faithfulness, answer relevancy).
+- **Promptfoo** — CLI-first eval runner, great for prompt diffs and CI integration.
+- **TruLens** — feedback functions and tracing for LLM apps.
+- **LangSmith / LangChain evaluation** — dataset, trace, and eval tooling tightly integrated with LangChain pipelines.
+- **Inspect AI** (UK AI Safety Institute) — research-grade eval framework for capability and safety testing.
+- **HELM** (Stanford) — holistic benchmark suite, useful as a reference for metric design.
+- **MLflow LLM Evaluate** — eval runs as MLflow experiments alongside traditional ML.
+- **Weights & Biases Weave** — experiment tracking and eval dashboards for LLM workflows.
+- **Arize Phoenix** — open-source observability + eval, strong on trajectory inspection.
+
+### Anthropic
+
+- **Workbench evaluation tools** in the Claude Console for prompt-by-prompt eval runs with rubric grading.
+- **Claude API for LLM-as-judge** patterns using Claude as the grader against a structured rubric.
+- **Anthropic Cookbook** evaluation recipes for tool-use correctness, RAG faithfulness, and trajectory inspection.
+
+### OpenAI
+
+- **OpenAI Evals** framework (open source) plus the hosted **Evals** product in the OpenAI platform for dataset upload, grader configuration, and run comparison.
+- **Model graders** using GPT models as structured judges.
+- **Tracing** in the OpenAI platform for step-by-step trajectory inspection of agent runs.
+
+### Azure
+
+- **Azure AI Foundry — Evaluation** (formerly Azure AI Studio evaluations): built-in metrics (groundedness, relevance, coherence, fluency, similarity), custom Python/prompt-based evaluators, and pipeline integration.
+- **Prompt Flow evaluation** for chaining eval runs into Azure DevOps / GitHub Actions.
+- **Content Safety** evaluators for harm categories.
+- **Application Insights / Log Analytics** for production drift signals feeding re-eval triggers.
+
+### Google Cloud (GCP)
+
+- **Vertex AI — Gen AI Evaluation Service** with pointwise and pairwise metrics, model-based evaluation, and rubric authoring.
+- **Vertex AI Experiments** for tracking eval runs alongside training.
+- **Cloud Logging + Trace** for trajectory capture from Vertex AI Agents and Agent Builder.
+
+### Amazon Web Services (AWS)
+
+- **Amazon Bedrock — Model Evaluation** for built-in and human-in-the-loop evaluation jobs on Bedrock foundation models.
+- **Bedrock Knowledge Bases evaluation** for RAG groundedness and retrieval quality.
+- **Bedrock Agents tracing** for step-level inspection of agent runs.
+- **SageMaker Clarify** for bias and explainability metrics that complement eval pillars.
+
+### Specialized and Adjacent Tools
+
+- **Humanloop, Braintrust, Langfuse, Helicone, Patronus AI, Confident AI** — managed eval and observability platforms that sit on top of the cloud and open-source primitives. Useful if you want a UI for non-engineers (PMs, ops, compliance) to author rubrics and review results.
+- **Guardrails AI, NeMo Guardrails** — output-validation libraries that double as programmatic evals.
+- **Giskard** — testing for ML and LLM systems including red-team scans.
+
+Pick by layer:
+
+- **Capture** (traces, prompts, outputs) → Phoenix, Langfuse, LangSmith, cloud-native tracing.
+- **Score** (run the evals) → DeepEval, Ragas, Promptfoo, OpenAI Evals, cloud-native evaluators.
+- **Aggregate + gate** (scorecards, CI gates) → Braintrust, Humanloop, MLflow, or a homegrown dashboard.
+- **Govern** (review, approve, archive) → your existing change-management system, with eval reports attached.
+
+## A Step-by-Step Rollout Plan for Your Organization
+
+This is the part you can hand to a team on Monday.
+
+### Phase 0 — Get Aligned (Week 1)
+
+- Pick **one pilot agent** with measurable business impact and an owner who wants this to succeed.
+- Name an **eval lead** — one person accountable for the framework, not a committee.
+- Write a one-page **eval charter** stating: what the agent does, the four pillars you will score, the gating rule, and who approves a release.
+
+### Phase 1 — Build the First Eval Set (Weeks 2–3)
+
+- Pull **50–100 real cases** from logs or tickets. Anonymize.
+- Hand-author **20–50 synthetic edge cases**: adversarial prompts, ambiguous inputs, policy edges, tool failures.
+- For each case capture: `input`, `golden_output` (where applicable), `pillar_targets`, `tags`.
+- Store the eval set in version control next to the agent code. **Treat it as production source code.**
+
+### Phase 2 — Wire the Four Scorers (Weeks 3–4)
+
+- **Programmatic**: write the schema and format checks first — they are cheapest and catch the most.
+- **Reference-based**: implement exact match and one fuzzy metric (BLEU or token F1) for the subset with golden answers.
+- **LLM-as-judge**: author a rubric (1–5 scale, three to five dimensions). Calibrate against 50 human-labeled cases. Target ≥ 85% agreement.
+- **Trajectory**: turn on trace logging. Define what "correct trajectory" means for this agent (allowed tool sequences, max-step budget).
+
+### Phase 3 — Establish the Baseline and the Gate (Week 5)
+
+- Run baseline + candidate. Produce the first scorecard.
+- Decide the **gating rule** explicitly. Example: "Ships if success ≥ baseline + 5pp, safety incidents = 0, cost regression ≤ 10%."
+- Document the rule in the repo. No more verbal agreements.
+
+### Phase 4 — Integrate into CI/CD (Weeks 6–7)
+
+- Add an `evals` job to your pipeline. Run on every prompt or model change.
+- Fail the build on gate violations. Post the scorecard as a PR comment.
+- Archive every scorecard with the commit SHA. Six months from now, "why did we change this?" should have an answer.
+
+### Phase 5 — Production Telemetry and Re-Eval Triggers (Weeks 8+)
+
+- Sample production traffic, score it with the same rubrics (a *shadow* eval), and watch for drift.
+- Wire the five re-eval triggers (model swap, prompt edit, new tool, drift, quarterly).
+- Hold a **monthly eval review**: which cases regressed, which rubric was wrong, what to add to the set.
+
+### Phase 6 — Scale Across Agents (Quarter 2+)
+
+- Promote the pilot pattern into a **golden path**: a template repo, a shared scorer library, a common scorecard schema.
+- Federate ownership: every agent team owns its eval set; the central platform team owns the runner and the dashboard.
+- Roll out **red-teaming** as a separate track for safety-critical agents.
+
+## Governance: Making Evals Stick
+
+Evals fail organizationally far more often than technically. A few guardrails:
+
+- **Single accountable owner per agent.** The owner signs off on every release scorecard.
+- **Eval set as code.** Pull requests against the eval set are reviewed like product code. Adding cases is a contribution; removing them needs justification.
+- **Separation of duties.** The team writing the agent should not be the sole author of the rubric used to judge it. Have a second reviewer (product, safety, or a peer team) approve rubrics.
+- **Audit trail.** Every release ships with a stored scorecard, the eval set version, the model version, and the approver's name.
+- **Safety pillar is a hard zero.** Cost and quality can be traded. Safety incidents at the gate are not negotiable.
+- **Human-in-the-loop sampling.** Even on automated runs, sample 5–10% of cases for human review. Judges drift; humans catch it.
+
+## Architecture and Risk Considerations
+
+- **Reproducibility.** Pin model versions, tool versions, prompts, and seeds. A scorecard you cannot reproduce is a rumor.
+- **Cost control.** LLM-as-judge can dominate your eval bill. Use cheaper judges where calibration allows; cache eval runs on unchanged inputs.
+- **Data privacy.** Eval sets often contain real customer data. Apply the same access controls as production data; consider synthetic or anonymized variants for broad access.
+- **Judge bias.** Rotate judge models. Run pairwise comparisons (A/B) where pointwise scores are suspect. Periodically re-validate against humans.
+- **Overfitting to the eval set.** If your agent only improves on the suite but not in production, your set is too narrow. Refresh quarterly with new live cases.
+- **Trajectory storage.** Traces are large. Decide retention (30/90/365 days) and tiering up front.
+- **Vendor lock-in.** Capture, score, and store layers should be swappable. Keep eval sets and scorecards in formats you own (JSON, parquet, markdown).
+- **Latency budget.** A 30-minute eval suite blocks every PR. Parallelize, sample, and run the long-tail nightly.
+
+## Maintenance: Keeping the Suite Honest
+
+- **Add a case every time production fails.** A regression that was not in the eval set is a missing test, not a one-off.
+- **Retire stale cases.** If a case has passed for six months on every variant, it stopped distinguishing. Replace it.
+- **Re-calibrate judges quarterly** against fresh human labels.
+- **Track eval-set coverage** by capability (tools used, intents, languages, edge categories). Aim for balanced coverage, not just volume.
+- **Publish the scorecard internally.** Visibility creates ownership.
+
+## Copy-Paste Templates
+
+### Eval Case (JSON)
+
+```json
+{
+  "id": "support-refund-001",
+  "tags": ["refund", "policy-edge", "tool-use"],
+  "input": "I want a refund for an order placed 45 days ago.",
+  "golden_output": null,
+  "expected_tools": ["lookup_order", "check_refund_policy"],
+  "rubric_targets": {
+    "accuracy": 4,
+    "empathy": 4,
+    "policy_adherence": 5,
+    "brevity": 3
+  },
+  "safety_required": ["no_pii_leak", "no_false_promise"],
+  "cost_budget_usd": 0.05
+}
+```
+
+### LLM-as-Judge Rubric
+
+```text
+Score the assistant's response on a 1–5 scale for each dimension.
+Return JSON: {"accuracy": int, "empathy": int, "policy_adherence": int, "brevity": int, "rationale": string}.
+
+- Accuracy: facts are correct and verifiable from provided context.
+- Empathy: tone acknowledges the customer's situation without being saccharine.
+- Policy adherence: follows the refund policy exactly; flags edge cases instead of inventing.
+- Brevity: no longer than necessary; no filler.
+```
+
+### Release Scorecard (Markdown)
+
+```text
+Agent: support-agent v1.4.0
+Eval set: support-evals @ commit a1b2c3d (412 cases)
+Baseline: support-agent v1.3.2
+
+| Pillar              | Baseline | Candidate | Delta   | Gate          |
+|---------------------|----------|-----------|---------|---------------|
+| Task success rate   | 73%      | 80%       | +7pp    | Pass (≥ +5pp) |
+| Tool-use correctness| 58%      | 65%       | +7pp    | Pass          |
+| Safety incidents    | 0        | 0         | 0       | Pass (= 0)    |
+| Cost / task         | $0.070   | $0.055    | -22%    | Pass          |
+| p95 latency         | 4.1s     | 4.3s      | +5%     | Pass (≤ +10%) |
+
+Decision: SHIP. Approver: <name>. Date: <YYYY-MM-DD>.
+```
+
+### Rollout Checklist
+
+- [ ] Pilot agent and eval lead named
+- [ ] One-page eval charter written and circulated
+- [ ] 100+ real cases pulled and anonymized
+- [ ] 20+ synthetic edge cases authored
+- [ ] Programmatic checks implemented
+- [ ] Reference-based scorer implemented for closed-domain subset
+- [ ] LLM-as-judge rubric authored and calibrated against humans
+- [ ] Trajectory logging enabled and "correct trajectory" defined
+- [ ] Baseline scorecard produced
+- [ ] Gating rule documented in repo
+- [ ] CI job blocks merges on gate failure
+- [ ] Scorecards archived per release with commit SHA
+- [ ] Production shadow eval sampling in place
+- [ ] Re-eval triggers wired (model swap, prompt edit, new tool, drift, quarterly)
+- [ ] Monthly eval review on the calendar
+
+## A Final Word
+
+The first eval suite you build will be imperfect. That is fine. The point is not perfection on day one — the point is to replace opinions with measurements, so the next release argument is "the scorecard says X" instead of "I think it feels better."
+
+Start with one agent, one suite, four pillars, and one gate. Ship it. Iterate. Six months from now you will look back and wonder how you ever shipped anything without it.
+
+Every agent earns its promotion. Build the framework that makes them earn it.
