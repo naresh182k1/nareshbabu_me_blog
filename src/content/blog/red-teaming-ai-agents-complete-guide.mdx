@@ -294,6 +294,85 @@ You do not need to build this from scratch. The ecosystem has matured fast. Here
 
 A pragmatic stack for a team of two on day one: PyRIT plus Garak for generation, Promptfoo wired into CI, Presidio for PII, Langfuse for traces. Add Giskard for the quarterly report card. That covers ninety percent of what most enterprises need.
 
+## Tool Walkthroughs: From Concept to Enterprise Adoption
+
+Listing tools is easy. Adopting them inside a real enterprise, where there are change-management committees, procurement reviews, and risk officers who have never heard of an "orchestrator," is the harder problem. This section walks through two complementary tools end to end, conceptually, without diving into code. Pair them and you cover both the depth of an attack library and the discipline of a CI gate.
+
+The two tools:
+
+- **PyRIT** (Python Risk Identification Tool) by Microsoft. The adversarial generation and orchestration engine. Repository: [github.com/Azure/PyRIT](https://github.com/Azure/PyRIT). Documentation: [azure.github.io/PyRIT](https://azure.github.io/PyRIT/).
+- **Promptfoo**. The developer-facing test runner that turns a red team library into a CI gate. Repository: [github.com/promptfoo/promptfoo](https://github.com/promptfoo/promptfoo). Documentation: [promptfoo.dev/docs](https://www.promptfoo.dev/docs/intro/). Red-team specific docs: [promptfoo.dev/docs/red-team](https://www.promptfoo.dev/docs/red-team/).
+
+Why this pair. PyRIT is built for depth, breadth, and adversarial creativity. It is the right tool to *generate* and *orchestrate* attacks across the twelve categories, including multi-turn sessions and prompt-converter chains (encode the attack in base64, then translate, then wrap in a persona). Promptfoo is built for repeatability and developer workflow. It is the right tool to *codify* a curated subset of those attacks into a configuration file that a CI pipeline runs on every pull request. Together they cover the two failure modes that kill most programs: the program that has a beautiful attack library but no gate, and the program that has a tight CI gate but tests only a handful of canned prompts.
+
+### Walkthrough 1: PyRIT as the Adversarial Engine
+
+**What it is, conceptually.** PyRIT models red teaming as a pipeline with four moving parts. A **target** (the agent under test, behind whatever interface it exposes). A **dataset** of seed prompts (yours, the built-in collections, or curated public sets). A set of **converters** that transform seed prompts into adversarial variants (encodings, persona wrappers, translation, paraphrase, character substitution). And a set of **scorers** that decide whether a response is a successful attack. An **orchestrator** ties them together, including multi-turn orchestrators that run an attacker LLM against a target LLM across many turns.
+
+**Why enterprises pick it.** It is open source, Microsoft-backed, and actively maintained. The documentation is good. The abstractions match the way a real red team thinks. It plugs into Azure OpenAI, OpenAI, Anthropic, Bedrock, Hugging Face, and arbitrary HTTP endpoints, which means it can target the agent through the same gateway your customers reach, not through a special back door that hides production-only failures.
+
+**Conceptual walkthrough, step by step.**
+
+1. **Stand up the environment.** Install PyRIT in an isolated workspace that has network access to a staging instance of the agent, never production. Configure credentials for the target through a secrets manager, not a checked-in file. Confirm the staging instance writes to scratch databases and stubbed downstream systems.
+2. **Define the target.** Point PyRIT at the agent's endpoint. The target abstraction handles authentication, retries, and trace capture. Whatever wraps your agent in production (a gateway, an auth layer, a routing service) should also wrap the target you point PyRIT at. Otherwise your tests cover the model, not the system.
+3. **Curate the seed dataset.** Start with PyRIT's built-in datasets (HarmBench-style collections, prompt-injection seeds). Add ten to fifty domain-specific prompts of your own per attack category, drawn from your threat model. For a bank these might reference real product names, real internal terminology, plausible customer scenarios. The domain-specific seeds are what separates a generic scan from a real red team.
+4. **Layer in converters.** A converter is a function that takes a seed prompt and produces an attack variant. PyRIT ships converters for base64, leetspeak, character flipping, Unicode tricks, language translation, search-and-replace, ROT-13, and LLM-driven rephrasing. Chain them ("first translate to French, then base64 encode") to produce variants that evade naive input filters. Coverage tip: every seed prompt should be expanded through at least three converter chains so you catch encoding-class attacks (category 10) along with the underlying intent.
+5. **Pick an orchestrator.** For one-shot probes use the simple PromptSendingOrchestrator. For categories 7 and 12 (context manipulation, multi-turn manipulation) use a RedTeamingOrchestrator, which pits an attacker LLM against the target across many turns with a configurable goal ("get the agent to disclose the system prompt," "get it to issue a refund without manager approval"). This is what makes PyRIT genuinely valuable; canned single-turn prompts will never find your slow-drift failures.
+6. **Wire scorers.** Scoring is the make-or-break step. PyRIT supports string-match scorers (cheap, brittle), LLM-as-judge scorers (more flexible, requires calibration against human labels), and self-ask scorers (the model is prompted to evaluate its own output against a rubric). For high-stakes categories like data extraction (4) and PII leakage (5), pair an LLM judge with a deterministic check (canary strings, regex for account numbers, Presidio post-pass). Never trust a single scorer for a critical finding.
+7. **Run, capture, store.** Every probe produces a record: input, intermediate converter outputs, the target's full response, tool calls if any, and the scorer's verdict. Store these in PyRIT's database backend. The artifact set is your evidence pack for auditors and the foundation of the regression suite.
+8. **Review and triage.** A successful PyRIT run on a real agent will produce hundreds of flagged interactions in the first pass. Most are false positives or duplicates. Cluster them by attack category, root cause, and severity. Assign criticals and highs to engineering, document mediums, accept lows.
+9. **Promote winners to the regression suite.** Every prompt that genuinely broke the agent goes into a permanent, versioned regression set that runs on every release forever. This is the asset that compounds over time; a two-year-old red team program has a regression library of thousands of real, agent-specific attacks that no off-the-shelf tool can reproduce.
+
+**Where the value compounds.** After two or three cycles you stop running PyRIT to "discover" attacks and start running it to "prove" coverage. The custom seed library and the per-agent regression suite become the most valuable artifacts in the program, more valuable than the tool itself. If you switched tools tomorrow, those assets would carry forward.
+
+### Walkthrough 2: Promptfoo as the CI Gate
+
+**What it is, conceptually.** Promptfoo models red teaming as configuration. A YAML file describes the providers (your agent endpoints), the prompts or scenarios to run, the assertions that define success or failure, and optional red-team plugins that auto-generate adversarial prompts for the twelve attack categories. A single command runs the whole config and produces a report (HTML, JSON, JUnit) that a CI system can consume.
+
+**Why enterprises pick it.** It looks and behaves like a test runner that developers already know how to use. The configuration sits in the same repository as the agent code. Engineers write assertions the same way they write unit tests. The barrier to "putting red team in CI" goes from a six-month project to an afternoon. The red-team plugin set covers most of the twelve categories out of the box, which is what gets a program past the first sprint without staffing a full security team.
+
+**Conceptual walkthrough, step by step.**
+
+1. **Install and initialise.** Add Promptfoo as a dev dependency in the agent's repository. The `init` command scaffolds a config file alongside the code. The principle is: tests live with the thing they test. A reviewer should see the red team config in the same pull request that ships an agent change.
+2. **Configure providers.** A provider is an endpoint Promptfoo can call. For an agent, this is typically a small adapter that posts to your staging API and returns the full response payload (including tool calls and any retrieved chunks). Same rule as PyRIT: hit the agent through its real gateway, not a shortcut. Configure separate provider entries for each tier and each environment if your agent has multiple deployments.
+3. **Define the prompts and test cases.** Two paths. The hand-curated path: write a YAML list of prompts derived from your threat model, with assertions that describe what the response must and must not contain. The generated path: use the red-team plugins, which take a description of your agent (purpose, persona, allowed and disallowed behaviours) and generate adversarial prompts across the twelve categories automatically. In practice you use both. Plugins for coverage at the floor, hand-curated cases for the failures unique to your domain.
+4. **Pick assertions.** Promptfoo supports deterministic assertions (regex, contains, JSON schema, length), LLM-graded assertions (rubric-scored by another model), and custom assertions (your own function). Pair them. Use a JSON schema assertion to enforce structure, a regex to forbid known leakage markers (system prompt fragments, internal tool names, canary strings), and an LLM-graded assertion against a per-category rubric ("did the response refuse the jailbreak attempt").
+5. **Set the gate.** Promptfoo can fail the CI job on any failed test, on a threshold (no more than N failures of a given severity), or on a regression (fewer passes than the last green build). The recommended gate is: zero critical failures, fewer than three high failures, no regression below the previous main-branch baseline. Anything else is a polite suggestion, not a gate.
+6. **Wire into CI.** Add a job to your pipeline that runs Promptfoo on every pull request that touches the agent code, the prompts, the retrieval corpus configuration, or the tool inventory. The job posts the HTML report as an artifact and a summary as a PR comment. Reviewers see the red team result before they approve the merge.
+7. **Run the import from PyRIT.** This is the integration trick. The most valuable attacks discovered by PyRIT belong in Promptfoo as durable regression tests. Export the winning prompts from PyRIT's database, convert them to Promptfoo test cases (a small script), and check them into the repository. Now your enterprise-grade discovery engine feeds your developer-grade gate. PyRIT finds new failures; Promptfoo guarantees they never come back.
+8. **Schedule periodic full sweeps.** A pull request gate runs a fast subset, perhaps a few hundred tests. A nightly job runs the full library, including LLM-judge-heavy tests that take longer. A quarterly job runs the full library plus refreshed generated attacks plus a manual red team day. All three feed the same scorecard.
+9. **Publish the dashboard.** Promptfoo's web UI and exported reports give product owners and risk officers a view they can read without engineering help. The single most useful artifact is a trend chart: failures per category over time, per release. A program that is working shows that line going down and staying down.
+
+**Where the value compounds.** The Promptfoo config in the agent's repository is the executable answer to "show me your red team coverage." A new engineer joining the team reads the config and learns the agent's threat model. An auditor asks for evidence; you point at the latest CI run. A regulator asks how you ensure ongoing testing; you point at the schedule and the dashboard. The artifact replaces a stack of slide decks.
+
+### How the Two Tools Fit Together in an Enterprise
+
+A workable end-to-end flow:
+
+- Engineers iterating on an agent run Promptfoo locally before they push. The config in the repo gives them the same gate the CI will apply.
+- Every pull request runs Promptfoo as a required check. Critical or high failures block merge.
+- A nightly job runs the expanded Promptfoo suite (more tests, slower judges) and reports trends.
+- A weekly job runs PyRIT with full converter chains and multi-turn orchestrators against the staging deployment. New failures get triaged, fixed, and the winning prompts are added to Promptfoo as regressions.
+- A quarterly cycle commissions an external red team (or rotates an internal squad) to attack what the automation misses. Their findings also enter the Promptfoo regression set.
+
+The combined artifact set after one year: a Promptfoo config in every agent repository, a PyRIT database of every probe ever run with full traces, a versioned regression library that only grows, and a trend dashboard the executive sponsor can read without translation.
+
+### What to Watch For When Adopting These Tools
+
+The traps that turn a promising tool adoption into a stalled program:
+
+- **Pointing the tools at the model instead of the system.** Both PyRIT and Promptfoo will happily test a raw model endpoint. That tells you about the model, not your agent. Always target the deployed agent through its production-equivalent gateway, so guardrails, retrieval, tool use, and auth are all in scope.
+- **Skipping the staging isolation step.** A red team probe that calls a real payments API is no longer a probe. It is an incident. Isolate staging, stub side-effecting tools, and confirm before the first run.
+- **Trusting LLM-as-judge scorers without calibration.** Both tools support LLM-graded checks. Both will silently produce wrong verdicts if the judge model has a bias or a blind spot. Calibrate every judge against at least one hundred human-labelled examples per category before you trust its scores in a gate.
+- **Letting the seed dataset go stale.** PyRIT's built-in datasets and Promptfoo's plugin attacks are public. Public attacks leak into training data and lose signal. Refresh seeds quarterly, with a mix of new public benchmarks, threat-intel-driven prompts, and what your own monitoring caught in production.
+- **Treating coverage as a number, not a matrix.** "We have eight hundred tests" is not coverage. "Every cell in the twelve-by-ten coverage matrix has at least one probe" is coverage. Build the matrix first; let the test count be whatever it needs to be.
+- **Cost overruns from naive LLM-judge use.** LLM-graded assertions can become the most expensive line on the bill if you run them on every PR with a frontier judge model. Use a cheaper model for fast gates, a stronger model for nightly and weekly sweeps, and budget per environment.
+- **CI flakiness that erodes trust.** Non-deterministic models produce non-deterministic test outcomes if assertions are too tight. Use rubric ranges, multiple-sample voting, or seeded sampling for borderline cases. A red team gate that fails one in twenty times for no reason will be silenced within a sprint.
+- **Procurement and risk-officer friction.** Both tools are open source and Apache-licensed, but enterprise procurement still wants a security review, a software-bill-of-materials entry, and a named owner. Plan for two to four weeks of governance overhead the first time. The second adoption (a second agent, a second team) is fast; the first is not.
+- **Treating the tools as the program.** PyRIT and Promptfoo are not the program. The program is the threat model, the cadence, the gate, the regression suite, the governance, and the people. If you swap tools next year, the program survives. If the program is just the tools, it does not.
+
+Two more references worth bookmarking when you adopt either tool: the OWASP Gen AI Red Teaming Guide at [genai.owasp.org](https://genai.owasp.org/) and the MITRE ATLAS knowledge base at [atlas.mitre.org](https://atlas.mitre.org/), both of which provide vocabulary, technique IDs, and scenarios you can encode directly as PyRIT seeds and Promptfoo test cases.
+
 ## OWASP Top 10 for LLM Applications and How to Use It
 
 The OWASP Top 10 for LLM Applications (the current edition is OWASP LLM Top 10 2025) is the closest thing the industry has to an agreed-upon checklist. Use it as your minimum coverage baseline. The current list maps onto the twelve categories as follows.
