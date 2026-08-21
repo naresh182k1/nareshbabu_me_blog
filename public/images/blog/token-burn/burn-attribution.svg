@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="480" viewBox="0 0 1000 480" role="img" aria-label="Architecture diagram. Agent runs emit OpenTelemetry generative AI spans, which a cost ledger prices against a versioned rate card. The ledger feeds an attribution store and a monthly burn report. A budget guard reads live spend and can refuse a call back at the agent runtime.">
+<style>
+  text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .d-bx{fill:#ffffff;stroke:#c9d4e1;stroke-width:1.4}
+  .d-a{fill:#e9eff7;stroke:#1e3a5f;stroke-width:1.8}
+  .d-g{fill:#e6f6ed;stroke:#1a8d4c;stroke-width:1.8}
+  .d-w{fill:#fdf1e2;stroke:#e8913a;stroke-width:1.8}
+  .d-r{fill:#fbe6e2;stroke:#b83527;stroke-width:1.8}
+  .d-x{fill:#f3f6fa;stroke:#aebbcb;stroke-width:1.4}
+  .d-n{fill:#e6ebf2;stroke:#a9b7c8;stroke-width:1.4}
+  .d-navy{fill:#1e3a5f;stroke:#1e3a5f}
+  .dt{font-size:15px;font-weight:700;fill:#12233a}
+  .dts{font-size:12.5px;font-weight:500;fill:#4b5c72}
+  .dtw{font-size:15px;font-weight:700;fill:#9c5c14}
+  .dtg{font-size:15px;font-weight:700;fill:#166b3c}
+  .dtr{font-size:14px;font-weight:700;fill:#a52f22}
+  .dl{font-size:12px;fill:#3b4b5f;font-weight:600}
+  .dlg{font-size:12.5px;fill:#4b5c72;font-weight:500}
+  .dlane{font-size:12.5px;font-weight:700;letter-spacing:.06em}
+  .dpanel{font-size:14px;font-weight:700;letter-spacing:.03em}
+  .dbar{font-size:14px;font-weight:700;fill:#12233a}
+  .dln{stroke:#94a4b7;stroke-width:1.6;fill:none}
+  .dln-r{stroke:#cf7a6d;stroke-width:1.8;fill:none}
+  .dln-g{stroke:#5cb98c;stroke-width:1.8;fill:none}
+  .dln-d{stroke:#b6c2d1;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+</style>
+<rect x="0" y="0" width="1000" height="480" fill="#ffffff"/>
+  <defs>
+    <marker id="c1" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#94a4b7"/>
+    </marker>
+  </defs>
+
+  <line class="dln" x1="203" y1="103" x2="212" y2="103" marker-end="url(#c1)"/>
+  <line class="dln" x1="396" y1="103" x2="405" y2="103" marker-end="url(#c1)"/>
+  <line class="dln" x1="589" y1="103" x2="598" y2="103" marker-end="url(#c1)"/>
+  <line class="dln" x1="782" y1="103" x2="791" y2="103" marker-end="url(#c1)"/>
+  <text class="dl" x="207" y="50" text-anchor="middle">emits per call</text>
+  <text class="dl" x="400" y="50" text-anchor="middle">prices each span</text>
+  <text class="dl" x="593" y="50" text-anchor="middle">joins run and owner</text>
+  <text class="dl" x="786" y="50" text-anchor="middle">rolls up monthly</text>
+
+  <rect class="d-x" x="25" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="114" y="98" text-anchor="middle">Agent Runtime</text>
+  <text class="dts" x="114" y="121" text-anchor="middle">every model and tool call</text>
+
+  <rect class="d-a" x="218" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="307" y="98" text-anchor="middle">Span Emitter</text>
+  <text class="dts" x="307" y="121" text-anchor="middle">OTel gen_ai attributes</text>
+
+  <rect class="d-a" x="411" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="500" y="98" text-anchor="middle">Cost Ledger</text>
+  <text class="dts" x="500" y="121" text-anchor="middle">tokens times rate at call time</text>
+
+  <rect class="d-a" x="604" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="693" y="98" text-anchor="middle">Attribution Store</text>
+  <text class="dts" x="693" y="121" text-anchor="middle">joined to the outcome</text>
+
+  <rect class="d-w" x="797" y="64" width="178" height="78" rx="10"/>
+  <text class="dtw" x="886" y="98" text-anchor="middle">Burn Report</text>
+  <text class="dts" x="886" y="121" text-anchor="middle">cost per outcome</text>
+
+  <rect class="d-bx" x="25" y="200" width="370" height="118" rx="11"/>
+  <text class="dt" x="45" y="228">The span fields that matter</text>
+  <text class="dts" x="45" y="252">run_id · agent_id · agent_version · task_type · model</text>
+  <text class="dts" x="45" y="274">attempt_no · retry_reason · cache_read · cache_write</text>
+  <text class="dts" x="45" y="296">input_tokens · output_tokens · reasoning_tokens · outcome</text>
+
+  <rect class="d-w" x="411" y="200" width="178" height="78" rx="10"/>
+  <text class="dtw" x="500" y="234" text-anchor="middle">Rate Card</text>
+  <text class="dts" x="500" y="257" text-anchor="middle">versioned, effective dated</text>
+  <line class="dln" x1="500" y1="200" x2="500" y2="150" marker-end="url(#c1)"/>
+  <text class="dl" x="512" y="178">priced at call time</text>
+
+  <rect class="d-g" x="604" y="200" width="371" height="118" rx="11"/>
+  <text class="dtg" x="624" y="230">Budget Guard, enforcement rather than reporting</text>
+  <text class="dts" x="624" y="256">per run token ceiling</text>
+  <text class="dts" x="624" y="278">per agent monthly budget</text>
+  <text class="dts" x="624" y="300">step limit and circuit breaker</text>
+  <line class="dln" x1="693" y1="142" x2="693" y2="194" marker-end="url(#c1)"/>
+  <text class="dl" x="705" y="178">reads live spend</text>
+
+  <path class="dln" d="M700,318 V360 H114 V150" marker-end="url(#c1)"/>
+  <text class="dl" x="410" y="352" text-anchor="middle">refuses the call when a ceiling is hit, the only control fast enough to stop a runaway loop</text>
+
+  <g transform="translate(25,398)">
+    <rect class="d-a" x="0" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="23" y="12">Built in this work</text>
+    <rect class="d-g" x="190" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="213" y="12">Runtime enforcement point</text>
+    <rect class="d-w" x="430" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="453" y="12">Reference data or output</text>
+    <rect class="d-x" x="660" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="683" y="12">Existing system</text>
+  </g>
+  <text class="dlg" x="25" y="452">Without the outcome join on run_id you can report spend, but not cost per successful outcome,</text>
+  <text class="dlg" x="25" y="472">which is the only figure comparable to the manual process the agent replaced.</text>
+</svg>

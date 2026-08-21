@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="620" viewBox="0 0 1000 620" role="img" aria-label="Lifecycle diagram. A release clock runs left to right from change through pre-publish eval, release gate, shadow and canary into production. A surveillance clock runs beneath, sampling live traffic, scoring with online judges, detecting drift, and acting. Confirmed failures flow up into a shared versioned case library, which feeds the pre-publish eval run.">
+<style>
+  text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .d-bx{fill:#ffffff;stroke:#c9d4e1;stroke-width:1.4}
+  .d-a{fill:#e9eff7;stroke:#1e3a5f;stroke-width:1.8}
+  .d-g{fill:#e6f6ed;stroke:#1a8d4c;stroke-width:1.8}
+  .d-w{fill:#fdf1e2;stroke:#e8913a;stroke-width:1.8}
+  .d-r{fill:#fbe6e2;stroke:#b83527;stroke-width:1.8}
+  .d-x{fill:#f3f6fa;stroke:#aebbcb;stroke-width:1.4}
+  .d-n{fill:#e6ebf2;stroke:#a9b7c8;stroke-width:1.4}
+  .d-navy{fill:#1e3a5f;stroke:#1e3a5f}
+  .dt{font-size:15px;font-weight:700;fill:#12233a}
+  .dts{font-size:12.5px;font-weight:500;fill:#4b5c72}
+  .dtw{font-size:15px;font-weight:700;fill:#9c5c14}
+  .dtg{font-size:15px;font-weight:700;fill:#166b3c}
+  .dtr{font-size:14px;font-weight:700;fill:#a52f22}
+  .dl{font-size:12px;fill:#3b4b5f;font-weight:600}
+  .dlg{font-size:12.5px;fill:#4b5c72;font-weight:500}
+  .dlane{font-size:12.5px;font-weight:700;letter-spacing:.06em}
+  .dpanel{font-size:14px;font-weight:700;letter-spacing:.03em}
+  .dbar{font-size:14px;font-weight:700;fill:#12233a}
+  .dln{stroke:#94a4b7;stroke-width:1.6;fill:none}
+  .dln-r{stroke:#cf7a6d;stroke-width:1.8;fill:none}
+  .dln-g{stroke:#5cb98c;stroke-width:1.8;fill:none}
+  .dln-d{stroke:#b6c2d1;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+</style>
+<rect x="0" y="0" width="1000" height="620" fill="#ffffff"/>
+  <defs>
+    <marker id="b1" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#94a4b7"/>
+    </marker>
+  </defs>
+
+  <text class="dlane" x="25" y="30" fill="#1e3a5f">RELEASE CLOCK, EVENT DRIVEN AND BLOCKING</text>
+
+  <line class="dln" x1="203" y1="103" x2="212" y2="103" marker-end="url(#b1)"/>
+  <line class="dln" x1="396" y1="103" x2="405" y2="103" marker-end="url(#b1)"/>
+  <line class="dln" x1="589" y1="103" x2="598" y2="103" marker-end="url(#b1)"/>
+  <line class="dln" x1="782" y1="103" x2="791" y2="103" marker-end="url(#b1)"/>
+  <text class="dl" x="207" y="52" text-anchor="middle">triggers a run</text>
+  <text class="dl" x="400" y="52" text-anchor="middle">scorecard vs baseline</text>
+  <text class="dl" x="593" y="52" text-anchor="middle">promote if clean</text>
+  <text class="dl" x="786" y="52" text-anchor="middle">ramp up</text>
+
+  <rect class="d-x" x="25" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="114" y="98" text-anchor="middle">Change</text>
+  <text class="dts" x="114" y="121" text-anchor="middle">prompt, model, index, tool</text>
+
+  <rect class="d-a" x="218" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="307" y="98" text-anchor="middle">Pre-Publish Eval</text>
+  <text class="dts" x="307" y="121" text-anchor="middle">full library plus adversarial</text>
+
+  <rect class="d-g" x="411" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="500" y="98" text-anchor="middle">Release Gate</text>
+  <text class="dts" x="500" y="121" text-anchor="middle">blocks on regression</text>
+
+  <rect class="d-a" x="604" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="693" y="98" text-anchor="middle">Shadow and Canary</text>
+  <text class="dts" x="693" y="121" text-anchor="middle">real traffic, 1 to 5 percent</text>
+
+  <rect class="d-x" x="797" y="64" width="178" height="78" rx="10"/>
+  <text class="dt" x="886" y="98" text-anchor="middle">Production</text>
+  <text class="dts" x="886" y="121" text-anchor="middle">all traffic</text>
+
+  <rect class="d-w" x="218" y="210" width="564" height="84" rx="11"/>
+  <text class="dtw" x="500" y="246" text-anchor="middle">Versioned Case Library, the shared asset</text>
+  <text class="dts" x="500" y="270" text-anchor="middle">golden cases · adversarial cases · replayed production runs · every past incident, kept forever</text>
+
+  <line class="dln" x1="307" y1="210" x2="307" y2="150" marker-end="url(#b1)"/>
+  <text class="dl" x="319" y="182">feeds every release run</text>
+
+  <path class="dln" d="M886,142 V172 H180 V440 H206" marker-end="url(#b1)"/>
+  <text class="dl" x="192" y="336">samples 1 to 5 percent of live runs</text>
+
+  <rect class="d-a" x="212" y="400" width="178" height="78" rx="10"/>
+  <text class="dt" x="301" y="434" text-anchor="middle">Sampled Runs</text>
+  <text class="dts" x="301" y="457" text-anchor="middle">stratified by risk</text>
+
+  <rect class="d-g" x="411" y="400" width="178" height="78" rx="10"/>
+  <text class="dt" x="500" y="434" text-anchor="middle">Online Judges</text>
+  <text class="dts" x="500" y="457" text-anchor="middle">rubric and programmatic</text>
+
+  <rect class="d-a" x="604" y="400" width="178" height="78" rx="10"/>
+  <text class="dt" x="693" y="434" text-anchor="middle">Drift Detection</text>
+  <text class="dts" x="693" y="457" text-anchor="middle">inputs, scores, overrides</text>
+
+  <rect class="d-w" x="797" y="400" width="178" height="78" rx="10"/>
+  <text class="dtw" x="886" y="434" text-anchor="middle">Act</text>
+  <text class="dts" x="886" y="457" text-anchor="middle">roll back or force a run</text>
+
+  <line class="dln" x1="390" y1="439" x2="405" y2="439" marker-end="url(#b1)"/>
+  <line class="dln" x1="589" y1="439" x2="598" y2="439" marker-end="url(#b1)"/>
+  <line class="dln" x1="782" y1="439" x2="791" y2="439" marker-end="url(#b1)"/>
+
+  <line class="dln" x1="500" y1="400" x2="500" y2="300" marker-end="url(#b1)"/>
+  <text class="dl" x="512" y="352">a confirmed failure becomes a permanent case</text>
+
+  <path class="dln-d" d="M886,400 V150" marker-end="url(#b1)"/>
+  <text class="dl" x="874" y="352" text-anchor="end">rollback</text>
+
+  <text class="dlane" x="25" y="508" fill="#b0691c">SURVEILLANCE CLOCK, CONTINUOUS AND SAMPLED</text>
+
+  <g transform="translate(25,540)">
+    <rect class="d-a" x="0" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="23" y="12">Eval stage you build</text>
+    <rect class="d-g" x="200" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="223" y="12">Automated scorer or gate</text>
+    <rect class="d-w" x="420" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="443" y="12">Shared asset or action</text>
+    <rect class="d-x" x="630" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="653" y="12">Existing pipeline stage</text>
+  </g>
+  <text class="dlg" x="25" y="596">Take away the upward arrow into the library and the system stops improving. It becomes two disconnected monitoring activities.</text>
+</svg>

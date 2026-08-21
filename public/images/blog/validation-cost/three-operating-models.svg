@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500" viewBox="0 0 1000 500" role="img" aria-label="Comparison of minutes of effort per completed case across three operating models. Manual baseline is 22 minutes of human work. Agent with blanket review is 17.3 minutes, almost all of it human re-derivation, saving only 21 percent. Verification-first design is 3.1 minutes, saving 86 percent.">
+<style>
+  text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .d-bx{fill:#ffffff;stroke:#c9d4e1;stroke-width:1.4}
+  .d-a{fill:#e9eff7;stroke:#1e3a5f;stroke-width:1.8}
+  .d-g{fill:#e6f6ed;stroke:#1a8d4c;stroke-width:1.8}
+  .d-w{fill:#fdf1e2;stroke:#e8913a;stroke-width:1.8}
+  .d-r{fill:#fbe6e2;stroke:#b83527;stroke-width:1.8}
+  .d-x{fill:#f3f6fa;stroke:#aebbcb;stroke-width:1.4}
+  .d-n{fill:#e6ebf2;stroke:#a9b7c8;stroke-width:1.4}
+  .d-navy{fill:#1e3a5f;stroke:#1e3a5f}
+  .dt{font-size:15px;font-weight:700;fill:#12233a}
+  .dts{font-size:12.5px;font-weight:500;fill:#4b5c72}
+  .dtw{font-size:15px;font-weight:700;fill:#9c5c14}
+  .dtg{font-size:15px;font-weight:700;fill:#166b3c}
+  .dtr{font-size:14px;font-weight:700;fill:#a52f22}
+  .dl{font-size:12px;fill:#3b4b5f;font-weight:600}
+  .dlg{font-size:12.5px;fill:#4b5c72;font-weight:500}
+  .dlane{font-size:12.5px;font-weight:700;letter-spacing:.06em}
+  .dpanel{font-size:14px;font-weight:700;letter-spacing:.03em}
+  .dbar{font-size:14px;font-weight:700;fill:#12233a}
+  .dln{stroke:#94a4b7;stroke-width:1.6;fill:none}
+  .dln-r{stroke:#cf7a6d;stroke-width:1.8;fill:none}
+  .dln-g{stroke:#5cb98c;stroke-width:1.8;fill:none}
+  .dln-d{stroke:#b6c2d1;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+</style>
+<rect x="0" y="0" width="1000" height="500" fill="#ffffff"/>
+  <text class="dlg" x="25" y="26">Minutes of effort per completed case, illustrative, from a claims adjudication workflow</text>
+
+  <text class="dt" x="25" y="90">Manual baseline</text>
+  <text class="dts" x="25" y="110">no agent involved</text>
+  <rect class="d-n" x="290" y="64" width="640" height="52" rx="6"/>
+  <text class="dbar" x="610" y="96" text-anchor="middle">Human reads sources, applies policy, writes the decision. 22.0 min</text>
+
+  <text class="dt" x="25" y="196">Agent, blanket review</text>
+  <text class="dts" x="25" y="216">the common pattern today</text>
+  <rect class="d-navy" x="290" y="170" width="9" height="52"/>
+  <rect class="d-r" x="299" y="170" width="407" height="52"/>
+  <rect class="d-w" x="706" y="170" width="87" height="52"/>
+  <text class="dtr" x="502" y="202" text-anchor="middle">Human re-derives the answer to check it. 14.0 min</text>
+  <text class="dts" x="749" y="202" text-anchor="middle">rework 3.0</text>
+  <text class="dbar" x="808" y="202">17.3 min · 21% saved</text>
+
+  <path class="dln" d="M299,232 V246 H706 V232"/>
+  <text class="dtr" x="502" y="270" text-anchor="middle">this block is the verification tax, the agent renamed it rather than removing it</text>
+
+  <text class="dt" x="25" y="326">Verification first</text>
+  <text class="dts" x="25" y="346">output built to be checked</text>
+  <rect class="d-navy" x="290" y="300" width="12" height="52"/>
+  <rect class="d-g" x="302" y="300" width="8" height="52"/>
+  <rect class="d-r" x="310" y="300" width="76" height="52"/>
+  <text class="dbar" x="400" y="332">3.1 min · 86% saved</text>
+
+  <line class="dln" x1="348" y1="352" x2="348" y2="374"/>
+  <text class="dl" x="356" y="390">targeted human review, 2.6 min averaged across every case</text>
+
+  <g transform="translate(25,424)">
+    <rect class="d-n" x="0" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="23" y="12">Manual work</text>
+    <rect class="d-navy" x="150" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="173" y="12">Agent generation</text>
+    <rect class="d-r" x="320" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="343" y="12">Human verification</text>
+    <rect class="d-w" x="500" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="523" y="12">Correction rework</text>
+    <rect class="d-g" x="670" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="693" y="12">Automated verification</text>
+  </g>
+
+  <text class="dlg" x="25" y="470">In the middle lane the agent is 2 percent of the effort and 100 percent of the attention.</text>
+  <text class="dlg" x="25" y="490">Cutting human verification from 14.0 to 2.6 minutes is worth four times more than making the agent twice as fast.</text>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="430" viewBox="0 0 1000 430" role="img" aria-label="Convergence diagram: four sources, hand authored golden cases, sampled production traffic, adversarial cases, and incident derived cases, feed one versioned case library, which is consumed by both the pre-publish release gate and the post-publish surveillance clock.">
+<style>
+  text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .d-bx{fill:#ffffff;stroke:#c9d4e1;stroke-width:1.4}
+  .d-a{fill:#e9eff7;stroke:#1e3a5f;stroke-width:1.8}
+  .d-g{fill:#e6f6ed;stroke:#1a8d4c;stroke-width:1.8}
+  .d-w{fill:#fdf1e2;stroke:#e8913a;stroke-width:1.8}
+  .d-r{fill:#fbe6e2;stroke:#b83527;stroke-width:1.8}
+  .d-x{fill:#f3f6fa;stroke:#aebbcb;stroke-width:1.4}
+  .d-n{fill:#e6ebf2;stroke:#a9b7c8;stroke-width:1.4}
+  .d-navy{fill:#1e3a5f;stroke:#1e3a5f}
+  .dt{font-size:15px;font-weight:700;fill:#12233a}
+  .dts{font-size:12.5px;font-weight:500;fill:#4b5c72}
+  .dtw{font-size:15px;font-weight:700;fill:#9c5c14}
+  .dtg{font-size:15px;font-weight:700;fill:#166b3c}
+  .dtr{font-size:14px;font-weight:700;fill:#a52f22}
+  .dl{font-size:12px;fill:#3b4b5f;font-weight:600}
+  .dlg{font-size:12.5px;fill:#4b5c72;font-weight:500}
+  .dlane{font-size:12.5px;font-weight:700;letter-spacing:.06em}
+  .dpanel{font-size:14px;font-weight:700;letter-spacing:.03em}
+  .dbar{font-size:14px;font-weight:700;fill:#12233a}
+  .dln{stroke:#94a4b7;stroke-width:1.6;fill:none}
+  .dln-r{stroke:#cf7a6d;stroke-width:1.8;fill:none}
+  .dln-g{stroke:#5cb98c;stroke-width:1.8;fill:none}
+  .dln-d{stroke:#b6c2d1;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+</style>
+<rect x="0" y="0" width="1000" height="430" fill="#ffffff"/>
+  <defs>
+    <marker id="b2" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#94a4b7"/>
+    </marker>
+  </defs>
+
+  <rect class="d-bx" x="25" y="40" width="250" height="72" rx="10"/>
+  <text class="dt" x="45" y="70">Golden cases</text>
+  <text class="dts" x="45" y="93">100 to 300, written by experts</text>
+
+  <rect class="d-bx" x="25" y="128" width="250" height="72" rx="10"/>
+  <text class="dt" x="45" y="158">Sampled production traffic</text>
+  <text class="dts" x="45" y="181">replayed, stratified by intent</text>
+
+  <rect class="d-bx" x="25" y="216" width="250" height="72" rx="10"/>
+  <text class="dt" x="45" y="246">Adversarial cases</text>
+  <text class="dts" x="45" y="269">mapped to OWASP LLM and ATLAS</text>
+
+  <rect class="d-w" x="25" y="304" width="250" height="72" rx="10"/>
+  <text class="dtw" x="45" y="334">Incident derived cases</text>
+  <text class="dts" x="45" y="357">the source most teams lack</text>
+
+  <line class="dln" x1="275" y1="76" x2="305" y2="76"/>
+  <line class="dln" x1="275" y1="164" x2="305" y2="164"/>
+  <line class="dln" x1="275" y1="252" x2="305" y2="252"/>
+  <line class="dln" x1="275" y1="340" x2="305" y2="340"/>
+  <line class="dln" x1="305" y1="76" x2="305" y2="340"/>
+  <line class="dln" x1="305" y1="195" x2="336" y2="195" marker-end="url(#b2)"/>
+
+  <rect class="d-a" x="340" y="120" width="300" height="150" rx="12"/>
+  <text class="dt" x="490" y="156" text-anchor="middle">VERSIONED CASE LIBRARY</text>
+  <text class="dts" x="490" y="186" text-anchor="middle">each case carries an id, an owner,</text>
+  <text class="dts" x="490" y="208" text-anchor="middle">a risk tier, its provenance,</text>
+  <text class="dts" x="490" y="230" text-anchor="middle">the expected behaviour,</text>
+  <text class="dts" x="490" y="252" text-anchor="middle">and a last reviewed date</text>
+
+  <line class="dln" x1="640" y1="195" x2="670" y2="195"/>
+  <line class="dln" x1="670" y1="140" x2="670" y2="270"/>
+  <line class="dln" x1="670" y1="140" x2="696" y2="140" marker-end="url(#b2)"/>
+  <line class="dln" x1="670" y1="270" x2="696" y2="270" marker-end="url(#b2)"/>
+
+  <rect class="d-g" x="700" y="100" width="275" height="80" rx="10"/>
+  <text class="dtg" x="720" y="132">Release gate, blocking</text>
+  <text class="dts" x="720" y="156">runs the full library on every change</text>
+
+  <rect class="d-g" x="700" y="230" width="275" height="80" rx="10"/>
+  <text class="dtg" x="720" y="262">Surveillance, continuous</text>
+  <text class="dts" x="720" y="286">supplies rubrics and expected behaviour</text>
+
+  <text class="dlg" x="25" y="408">Version it like source code. A case whose expected output is stale because policy changed is worse than no case at all.</text>
+</svg>

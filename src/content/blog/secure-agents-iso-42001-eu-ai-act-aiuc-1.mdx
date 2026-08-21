@@ -1,0 +1,230 @@
+---
+title: "One Control Plane, Three Rulebooks: Building Agents That Can Prove What They Did"
+description: "ISO/IEC 42001, the EU AI Act and AIUC-1 converge on the same eight controls. Build one control plane, let the runtime emit the evidence, and render it three ways."
+pubDate: "2026-08-21"
+heroImage: "/images/blog/secure-agents/hero.svg"
+category: "AI Governance"
+tags: ["ISO 42001", "EU AI Act", "AIUC-1", "AI governance", "agent security", "audit", "NIST AI RMF", "OSFI E-23", "compliance"]
+author: "Naresh Babu"
+readingTime: "18 min read"
+---
+
+Ask an engineering team to demo their agent and you will be impressed. Ask them to prove what it did last Tuesday, on whose behalf, and who approved it, and the room goes quiet. That silence, not model quality, is what keeps most enterprise agents stuck in pilot.
+
+I have watched this happen enough times to describe it before it starts. A team builds an agent that genuinely works. It triages alerts, reconciles ledgers, drafts adjudication notes, answers customers. Stakeholders see the demo and want it live in six weeks.
+
+Then it meets the second line of defence, and a handful of very ordinary questions turn out to be unanswerable.
+
+## The questions nobody can answer
+
+- Which model version produced this output, and can you reproduce it?
+- What data did it retrieve, and was that data the customer's own?
+- Which tool calls can it make without a human, and who set that boundary?
+- Show me the last thirty escalations and what the human decided.
+- If a regulator asks for this in eighteen months, where is it stored?
+
+None of those are model questions. They are systems questions, and the honest answer in most pilots is that the information exists in fragments across an application log, a Confluence page, a Slack thread, and one engineer's head. **The pilot does not fail. It simply never leaves the pilot**, and after two quarters it is quietly written off.
+
+I think of this as the evidence gap: the distance between an agent that behaves well and an organisation that can prove it behaves well. Closing that gap is the highest leverage work in enterprise AI right now, because the model side keeps getting cheaper and better while the assurance side does not improve on its own.
+
+Three rulebooks now govern the same agent. Roughly 70 percent of their requirements overlap, yet most programmes run three separate workstreams. Eight controls, built once, satisfy all three audiences.
+
+> **The idea this whole piece rests on.** If the evidence is not produced by the system that does the work, it is a story, not a record. Auditors, regulators, and insurers have all converged on the same test, and narrative documentation fails it.
+
+## Three rulebooks pointing the same way
+
+Three instruments now define what "provable" means for an AI agent. They came from very different places, a standards body, a legislature, and an insurance market, and that is exactly why reading them together is useful.
+
+### ISO/IEC 42001, the management system
+
+Published in December 2023, ISO/IEC 42001 is the first certifiable management system standard for artificial intelligence. Structurally it is a sibling of ISO/IEC 27001: the same Annex SL clause structure (context, leadership, planning, support, operation, performance evaluation, improvement) wrapped around a Plan Do Check Act cycle, with Annex A controls covering AI policy, internal organisation, resources, impact assessment, system life cycle, data, information for interested parties, use of AI systems, and third party relationships.
+
+What matters practically is that it is certifiable by an accredited body. That makes it the first AI artefact a procurement team can treat the way it treats an ISO 27001 certificate or a SOC 2 Type II report. Two companion documents do a lot of the real work: ISO/IEC 23894 for AI risk management guidance, and ISO/IEC 42005 for AI system impact assessment.
+
+### The EU AI Act, the legal obligation
+
+Regulation (EU) 2024/1689 entered into force on 1 August 2024 and applies in phases. Prohibitions on unacceptable risk practices and the AI literacy duty applied from 2 February 2025. Obligations on general purpose AI models applied from 2 August 2025. Obligations on high risk systems listed in Annex III were legislated to apply from 2 August 2026, with high risk AI embedded in regulated products following on 2 August 2027. Penalties run to 35 million euro or 7 percent of global annual turnover for prohibited practices, and 15 million euro or 3 percent for breaches of most other obligations.
+
+For an agent classified as high risk, Articles 9 to 15 are the operative text, and they read like an engineering specification rather than a policy document: a risk management system running across the whole lifecycle (Art. 9), data governance and quality criteria for training, validation, and testing data (Art. 10), technical documentation to the level of detail in Annex IV (Art. 11), automatic recording of events over the system's lifetime (Art. 12), transparency and instructions for use (Art. 13), human oversight designed into the system (Art. 14), and an appropriate level of accuracy, robustness, and cybersecurity (Art. 15). Article 50 adds disclosure duties for systems that interact with people or generate synthetic content.
+
+> **A word on the dates.** The Commission's Digital Omnibus package proposed targeted adjustments to some AI Act application dates and simplification of certain obligations. Timelines here have moved before. Treat every date above as the position as legislated, and confirm the current status with counsel before building a plan around a specific month. The substance of Articles 9 to 15 has never been in question, which is why I would build to the controls rather than wait for calendar certainty.
+
+### AIUC-1, the view from someone taking the risk
+
+AIUC-1 is a certification standard for AI agents introduced in 2025 by the Artificial Intelligence Underwriting Company, built with insurers and independent auditors. Its organising idea is different from the other two and worth sitting with: it exists so that the risk of deploying a third party AI agent can be underwritten. It is structured around six domains (data and privacy, security, safety, reliability, accountability, and societal impact) and it requires independent audit and evidence of adversarial testing rather than self attestation. It publishes crosswalks to the NIST AI Risk Management Framework, the EU AI Act, ISO/IEC 42001, and MITRE ATLAS.
+
+Put the three side by side and a useful pattern appears. ISO tells you how to manage. The AI Act tells you what is mandatory. AIUC-1 tells you what somebody willing to take financial risk on your agent actually wants to see. That third perspective is unusually clarifying, because an insurer has no incentive to accept a well written policy document in place of test results.
+
+### The regional layer that will reach you first
+
+Around those three sit the supervisory expectations most likely to knock on your door before any of the above. NIST AI RMF 1.0 and its Generative AI Profile (NIST AI 600-1) are the reference vocabulary in North America. In Canada, OSFI Guideline E-23 on model risk management extends beyond traditional models to cover AI and machine learning, and expects lifecycle governance, independent review proportionate to risk, and ongoing monitoring. In the UK the FCA and PRA have taken a technology neutral posture that pushes the burden onto existing senior management accountability regimes. In Singapore, MAS FEAT and the AI Verify toolkit play a similar role.
+
+Long list, real convergence. Read across all of them and the same eight demands keep appearing.
+
+## What I think most teams get wrong
+
+Compliance for AI agents should be an output of the runtime, not a parallel documentation exercise running alongside it. Three things follow from that.
+
+1. **One control set, three dialects.** Define the controls once. Map each to its ISO Annex A objective, its AI Act article, and its AIUC-1 domain. When an auditor arrives, render the same underlying evidence in whichever vocabulary they use. Never maintain three descriptions of one system.
+2. **Enforcement in the path, not in the policy.** A rule that lives in a document is a hope. A rule that lives in a gate the agent cannot bypass is a control. Every control should have a runtime enforcement point and a log line, or it does not count.
+3. **Evidence generated continuously, assembled on demand.** The run log is written as the agent works. The evidence pack, the thing you hand an auditor, is a rendering job over that log. It should be a report, not a project.
+
+> **If I could change one question in the room.** Stop asking "are we compliant with the EU AI Act?" and start asking "can our runtime produce, unprompted, a tamper evident record of every decision this agent made last quarter?" If the answer is yes, compliance becomes a mapping exercise. If the answer is no, no amount of documentation will save the audit.
+
+## One control plane, drawn out
+
+![The agent control plane: a request flows through a policy gate, agent runtime and tool broker into a system of record, with agent identity, guardrails and human oversight beneath, all writing to an immutable run log that renders an evidence pack](/images/blog/secure-agents/control-plane.svg)
+
+*Every obligation in the three rulebooks has a physical enforcement point in the request path and a matching log line. The evidence pack is a query over the run log, which is why it can be produced on demand rather than assembled by a project team.*
+
+Read it left to right and the intent is visible. Nothing reaches a system of record without passing a gate that knows the agent's identity, the declared purpose of the call, and the risk tier of the action. Nothing happens that is not written to an append only log. And the artefact an auditor wants is a rendering of that log rather than a separate set of documents maintained by hand.
+
+![Three rulebooks converging into one control set of eight controls, which renders three different evidence outputs: a Statement of Applicability, an Annex IV technical file, and an audit evidence bundle](/images/blog/secure-agents/one-control-set.svg)
+
+*The three rulebooks are not three programmes. Eight controls, built once, satisfy all of them. What differs between audiences is only the rendering.*
+
+### The clause mapping, control by control
+
+| Control | ISO/IEC 42001 | EU AI Act | AIUC-1 domain | Evidence artefact |
+|---|---|---|---|---|
+| 1 · Lifecycle risk and impact assessment | A.5, Cl. 6.1 | Art. 9 | Reliability | Risk register and sign-off |
+| 2 · Data governance and provenance | A.7 | Art. 10 | Data and Privacy | Dataset sheet and lineage |
+| 3 · Technical documentation | A.6 | Art. 11, Annex IV | Accountability | Versioned agent card |
+| **4 · Automatic logging and traceability** | A.6, A.9 | Art. 12 | Accountability | Tamper evident run log |
+| 5 · Human oversight | A.9 | Art. 14 | Safety | Escalation and decision records |
+| 6 · Accuracy, robustness, cybersecurity | A.6 | Art. 15 | Security and Safety | Scorecard and red team report |
+| 7 · Transparency and disclosure | A.8 | Art. 13, Art. 50 | Society | Disclosure copy and UX proof |
+| 8 · Third party and supply chain | A.10 | Art. 25 | Accountability | Attestations and model BOM |
+
+Control 4 carries the weight. Seven of the other controls cannot be evidenced without a trustworthy log underneath them. Clause and article references are indicative mappings for planning, so confirm against the published texts before certification.
+
+## Inside the eight controls
+
+### Policy gate: bind the purpose before anything executes
+
+The policy gate is the first component and usually the least built. Its job is to answer, before any model call, three questions: who is asking, for what declared purpose, and what is the risk tier of the most consequential action this request could trigger.
+
+Purpose binding is the piece that gets skipped. A request that arrives with a declared purpose of "customer balance enquiry" should not be able to end in a funds transfer, even if the model reasons its way there. Encoding purpose at the gate and re-checking it at the tool broker turns a whole family of prompt injection outcomes from a security incident into a denied call with a log line. That is the practical version of the Article 9 expectation that risk controls operate across the lifecycle rather than only at the model boundary.
+
+Risk tiering should be simple enough that engineers apply it consistently. Four tiers works: read only on non personal data, read on personal data, write with reversibility, and irreversible or externally visible action. Tier determines guardrail strictness, oversight mode, log retention, and eval coverage. One table, applied uniformly, removes most of the argument.
+
+### Agent identity: stop agents borrowing human credentials
+
+The most common architectural flaw I find in pilots is an agent running with a service account that inherits the permissions of the most privileged user it serves. It makes the demo easy and the audit impossible, because you can no longer distinguish an action taken by a person from an action taken by software on that person's behalf.
+
+Each agent needs its own workload identity, its own scoped credentials, and a delegation record when it acts for a user. In practice: short lived tokens, scopes narrowed to the specific tools the job requires, and an `on_behalf_of` claim carried through the whole call chain into the system of record. When someone asks "who did this", the answer has to be two parts, this agent acting for this person under this delegation at this time, and it has to come out of the log rather than out of an interview.
+
+### Tool broker: the real security boundary
+
+Prompts are advisory. Tools are what actually change the world, so the tool broker is where enforcement belongs. Every tool the agent can call is registered with a declared risk tier, an input schema, an output schema, a rate limit, a quota, and an idempotency requirement for anything that writes.
+
+- **Deny by default.** An agent gets a tool allowlist tied to its job, not the full catalogue.
+- **Writes are idempotent and reversible where possible.** An agent retry must not double post a journal entry. That sounds like a reliability concern. In an audit it is a control.
+- **The broker re-validates purpose and tier.** The gate decided at the front door, the broker decides again at the point of action, because the plan may have changed in between.
+
+### Guardrails, and the abstention path everyone forgets
+
+Input screening covers prompt injection, jailbreak patterns, and indirect injection carried inside retrieved documents. That last one is the vector most teams have never tested. Output screening covers personal data leakage, unsupported claims in regulated language, toxicity, and format violations that would break something downstream.
+
+The piece that gets left out is abstention. An agent needs a first class way to say "I am not confident, escalate this", and that path has to be cheap and well instrumented. Agents without an abstention path do not become more accurate, they become more confident, which is worse. Abstention rate is one of the healthiest production metrics you can watch. A rate that collapses toward zero usually means the threshold drifted, not that the agent improved.
+
+### Human oversight, measured honestly
+
+Article 14 asks for oversight a human can meaningfully exercise. That bar is higher than a rubber stamp queue, and it is where a lot of implementations quietly fail. Meaningful oversight means the reviewer sees the reasoning trace and the sources, can amend rather than only approve or reject, can see what the agent was uncertain about, and that the system measures whether review is actually happening.
+
+Two numbers tell you the truth about your oversight: median review time and override rate. A median review time of four seconds on a complex adjudication is not oversight, it is a queue being cleared. An override rate near zero over months means either an excellent agent or a disengaged reviewer, and you need eval data to know which. Both belong on a governance report, not in an engineering backlog.
+
+### The run log
+
+Article 12 requires automatic recording of events over the lifetime of a high risk system, and the AIUC-1 accountability domain asks for equivalent traceability. In practice the log needs, per run: a run identifier, agent identity and version, model identifier and version, the full prompt assembly including retrieved context and its source identifiers, every tool call with arguments and results, guardrail verdicts, escalations and human decisions, final output, latency, token counts, and cost.
+
+Two choices make it audit grade rather than merely useful. First, append only with hash chaining, so tampering is detectable and the record can be attested. Second, retention aligned to the regulated process rather than to your observability vendor's default 30 day window. For most financial and insurance processes that means years, which means the log tiers to cheap storage instead of living in an APM tool.
+
+### The evidence pack
+
+The last component is a renderer. It reads the run log and the control registry and produces the documents each audience expects: an Annex IV shaped technical documentation set, a Statement of Applicability with control evidence, a domain by domain bundle for an audit, and a plain English summary for the business owner. Build it once and the marginal cost of the next audit collapses. That is the whole economic argument for the architecture.
+
+## Building it in twelve weeks
+
+This sequence assumes one product team, one risk partner, and an agent already in pilot. The order matters more than the durations.
+
+| Phase | Weeks | What gets built | How you know it worked |
+|---|---|---|---|
+| Classify | 1 | Risk classification per agent and per tool. Purpose statements. Four tier action model agreed with risk. | Second line signs the tier table |
+| Log first | 2 to 3 | Run log schema, append only store, hash chaining, retention tiering. Instrument the existing agent. | You can replay any run from the log alone |
+| Identity | 3 to 4 | Workload identity per agent, scoped credentials, delegation claim carried to systems of record. | No agent uses a shared human account |
+| Broker | 4 to 6 | Tool registry with tiers, schemas, quotas, idempotency. Deny by default allowlists. | An off allowlist call is denied and logged |
+| Guardrails | 6 to 8 | Input and output screening, indirect injection tests on retrieval, abstention wired to escalation. | Red team suite runs in CI |
+| Oversight | 8 to 9 | Review console with reasoning trace and sources, amend capability, review time and override telemetry. | Both oversight metrics on a dashboard |
+| Evidence | 9 to 11 | Evidence renderer: Annex IV set, Statement of Applicability, audit bundle. | Pack generated in under a day, unassisted |
+| Dry run | 12 | Internal audit against the pack. Gaps become backlog items with owners. | Internal audit raises no critical finding |
+
+### Five ways I have watched this go wrong
+
+1. **Documentation first.** The policy set gets written before the runtime exists. Twelve weeks later the runtime does something different and the documents are fiction. Build the log first, then write policy against what the log can prove.
+2. **The shared service account.** The hardest thing on this list to retrofit, which is why identity belongs at week three and not week nine.
+3. **Guardrails on the prompt only.** Teams screen user input, ship, and then find the injection arrived inside a PDF the retrieval layer pulled in. Indirect injection through retrieval belongs in the test suite from day one.
+4. **Oversight theatre.** An approval queue with a four second median review time. It passes a walkthrough and fails the first real incident. Measure it or do not claim it.
+5. **Retention set by the observability tool.** Thirty day retention on a process with a seven year record keeping obligation, discovered during audit, unfixable in retrospect.
+
+> **The sequencing lesson.** Every version of this I have seen start with the log finished. Every version that started with the governance framework needed a restart. The log is the cheapest component to build and the one that makes the other seven controls demonstrable. It is the right first move even when the steering committee wants to see a framework in week one.
+
+## What it is worth
+
+The safety argument lands with risk and rarely with finance. These are the numbers that tend to move a budget conversation, and all of them are about what the organisation keeps.
+
+### Time to production
+
+The dominant cost of the evidence gap is not audit effort, it is delay. An agent with a credible business case sitting in pilot for two extra quarters loses half its annual benefit before it ever runs. If an agent is worth 1.2 million a year in avoided handling cost, two quarters of delay costs 600,000, which is usually several times what the control plane took to build.
+
+### Audit effort, per agent, every year
+
+Assembling evidence by hand for a single regulated AI use case routinely consumes 200 to 400 person hours across engineering, risk, and compliance. It repeats annually, and again for each external review. A rendered evidence pack takes that to a small fraction, and the saving repeats every time.
+
+### Reuse across the portfolio
+
+This is the effect that changes the maths. The first agent pays the full cost of the control plane. The second pays integration only. By the fifth, governance is a configuration exercise. Anyone planning ten or more agents is choosing between building this once and building a bespoke evidence story ten times, whether or not the decision has been framed that way.
+
+| Where the value shows up | How to size it with your own numbers |
+|---|---|
+| Delay avoided | Annual benefit of the agent, times quarters of delay avoided, divided by 4 |
+| Audit effort avoided | Hours saved per audit, times blended rate, times number of agents, times audits per year |
+| Reuse across the portfolio | Per agent governance cost, times agents after the first, times roughly 0.7 |
+| Incident and remediation avoidance | Probability, times cost of one disclosed AI incident in your sector |
+
+The ratio between these lines is far more stable across organisations than the absolute values. Run the formulas with your own figures rather than borrowing anyone else's.
+
+## Where I would start on Monday
+
+1. **Spend a week classifying.** List every agent in flight, its declared purpose, the most consequential action it can take, and whether any Annex III use case plausibly applies. It is a short exercise and it reorders the roadmap immediately.
+2. **Build the run log before anything else.** Append only, tamper evident, retention matched to the regulated process. Nothing else on this list is provable without it.
+3. **Give every agent its own identity.** Retrofitting identity after a portfolio has grown is the most expensive remediation in this whole space.
+4. **Adopt one control set and map it three ways.** The clause table above is a starting template. One register, three vocabularies, no duplication.
+5. **Run an internal audit dry run at week twelve.** Not to pass, but to find the gaps while they are still cheap. Everyone I know who has done this found something material, and was glad it was internal.
+
+> **If you only do one thing.** Instrument the log. Two to three weeks of work, the control that carries all three rulebooks, and it turns every future compliance question from an investigation into a query.
+
+## If you want to read further
+
+1. **ISO/IEC 42001:2023, Information technology, Artificial intelligence, Management system.** Read Annex A first. It is the control list your programme will be measured against. [iso.org/standard/42001](https://www.iso.org/standard/42001)
+2. **Regulation (EU) 2024/1689, consolidated text on EUR-Lex.** Articles 9 to 15 and Annex IV are the engineering specification. [eur-lex.europa.eu](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
+3. **European Commission, AI Act implementation and timeline.** The authoritative place to confirm application dates as they evolve. [digital-strategy.ec.europa.eu](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai)
+4. **NIST AI Risk Management Framework 1.0 and the Generative AI Profile (NIST AI 600-1).** The common vocabulary in North American programmes. [nist.gov](https://www.nist.gov/itl/ai-risk-management-framework)
+5. **AIUC-1 standard and crosswalks.** Worth reading for the insurer's view of what counts as evidence. [aiuc.com](https://www.aiuc.com)
+6. **OSFI Guideline E-23, Model Risk Management.** The Canadian anchor, extending model risk expectations across AI and machine learning. [osfi-bsif.gc.ca](https://www.osfi-bsif.gc.ca/en/guidance/guidance-library/model-risk-management-guideline-2027)
+7. **MITRE ATLAS.** The adversarial technique taxonomy your red team suite should map to. [atlas.mitre.org](https://atlas.mitre.org)
+8. **OWASP Top 10 for LLM Applications.** The practical checklist for the guardrail and tool broker layers. [genai.owasp.org](https://genai.owasp.org)
+
+## The short version
+
+**@NBA.naresh** · [linkedin.com/in/naresh-babu-anapakala-72734534](https://www.linkedin.com/in/naresh-babu-anapakala-72734534)
+
+1. **The blocker is evidence, not model quality.** Most agents that stall in pilot are technically fine. They stall because nobody can produce a defensible record of how the agent behaves, who approved it, and what happens when it is wrong.
+2. **Three rulebooks now govern that record**, and they overlap by roughly 70 percent. ISO/IEC 42001 for the management system, the EU AI Act for legal obligation, AIUC-1 for independent audit.
+3. **Running them separately is the expensive mistake.** Parallel workstreams produce three sets of documents describing one system, and none of them are generated by the system itself.
+4. **The fix is architectural.** Put a control plane between the agent and everything it can touch, and let the runtime generate evidence as a by-product of doing the work.
+5. **The payoff is speed as much as safety.** The second agent inherits the evidence pipeline instead of rebuilding it, and that is when the maths turns.
+
+Written by **Naresh Babu Anapakala**. If you are working through this in your own organisation, I am always glad to compare notes on [LinkedIn](https://www.linkedin.com/in/naresh-babu-anapakala-72734534).
+
+*This is engineering and governance guidance, not legal advice. Regulatory dates and obligations in this area continue to move, so confirm the current position with qualified counsel before making compliance commitments. Clause and article mappings are indicative and intended for planning rather than certification.*

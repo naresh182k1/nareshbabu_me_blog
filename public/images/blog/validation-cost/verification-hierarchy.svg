@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="530" viewBox="0 0 1000 530" role="img" aria-label="A six tier verification hierarchy, from deterministic recomputation at the cheapest tier up to full human re-derivation at the most expensive, showing cost per check and the share of items each tier should handle.">
+<style>
+  text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .d-bx{fill:#ffffff;stroke:#c9d4e1;stroke-width:1.4}
+  .d-a{fill:#e9eff7;stroke:#1e3a5f;stroke-width:1.8}
+  .d-g{fill:#e6f6ed;stroke:#1a8d4c;stroke-width:1.8}
+  .d-w{fill:#fdf1e2;stroke:#e8913a;stroke-width:1.8}
+  .d-r{fill:#fbe6e2;stroke:#b83527;stroke-width:1.8}
+  .d-x{fill:#f3f6fa;stroke:#aebbcb;stroke-width:1.4}
+  .d-n{fill:#e6ebf2;stroke:#a9b7c8;stroke-width:1.4}
+  .d-navy{fill:#1e3a5f;stroke:#1e3a5f}
+  .dt{font-size:15px;font-weight:700;fill:#12233a}
+  .dts{font-size:12.5px;font-weight:500;fill:#4b5c72}
+  .dtw{font-size:15px;font-weight:700;fill:#9c5c14}
+  .dtg{font-size:15px;font-weight:700;fill:#166b3c}
+  .dtr{font-size:14px;font-weight:700;fill:#a52f22}
+  .dl{font-size:12px;fill:#3b4b5f;font-weight:600}
+  .dlg{font-size:12.5px;fill:#4b5c72;font-weight:500}
+  .dlane{font-size:12.5px;font-weight:700;letter-spacing:.06em}
+  .dpanel{font-size:14px;font-weight:700;letter-spacing:.03em}
+  .dbar{font-size:14px;font-weight:700;fill:#12233a}
+  .dln{stroke:#94a4b7;stroke-width:1.6;fill:none}
+  .dln-r{stroke:#cf7a6d;stroke-width:1.8;fill:none}
+  .dln-g{stroke:#5cb98c;stroke-width:1.8;fill:none}
+  .dln-d{stroke:#b6c2d1;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+</style>
+<rect x="0" y="0" width="1000" height="530" fill="#ffffff"/>
+  <defs>
+    <marker id="d1" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#94a4b7"/>
+    </marker>
+  </defs>
+
+  <text class="dlg" x="25" y="24">Design rule: every check belongs at the lowest tier that is capable of performing it</text>
+
+  <line class="dln" x1="45" y1="52" x2="45" y2="456" marker-end="url(#d1)"/>
+  <text class="dl" x="45" y="478" text-anchor="middle">cheaper</text>
+
+  <rect class="d-r" x="80" y="44" width="895" height="62" rx="9"/>
+  <text class="dt" x="100" y="72">Tier 6 · Full human re-derivation</text>
+  <text class="dts" x="100" y="93">the reviewer opens the sources and redoes the work</text>
+  <text class="dtr" x="655" y="82">10 to 20 min</text>
+  <text class="dts" x="780" y="82">target: under 5% of items</text>
+
+  <rect class="d-w" x="80" y="116" width="895" height="62" rx="9"/>
+  <text class="dt" x="100" y="144">Tier 5 · Targeted human judgement</text>
+  <text class="dts" x="100" y="165">the reviewer adjudicates only flagged or low confidence claims</text>
+  <text class="dtw" x="655" y="154">1 to 3 min</text>
+  <text class="dts" x="780" y="154">the residue that needs a person</text>
+
+  <rect class="d-w" x="80" y="188" width="895" height="62" rx="9"/>
+  <text class="dt" x="100" y="216">Tier 4 · Sampled human review</text>
+  <text class="dts" x="100" y="237">acceptance sampling against a defined quality level, risk tiered</text>
+  <text class="dtw" x="655" y="226">amortised</text>
+  <text class="dts" x="780" y="226">5 to 20% of items, by tier</text>
+
+  <rect class="d-g" x="80" y="260" width="895" height="62" rx="9"/>
+  <text class="dt" x="100" y="288">Tier 3 · Independent model verifier</text>
+  <text class="dts" x="100" y="309">a different model family checks each claim against the retrieved sources</text>
+  <text class="dtg" x="655" y="298">cents</text>
+  <text class="dts" x="780" y="298">catches unsupported claims</text>
+
+  <rect class="d-g" x="80" y="332" width="895" height="62" rx="9"/>
+  <text class="dt" x="100" y="360">Tier 2 · Programmatic rules and cross-checks</text>
+  <text class="dts" x="100" y="381">policy rules, range checks, reconciliation against the system of record</text>
+  <text class="dtg" x="655" y="370">near zero</text>
+  <text class="dts" x="780" y="370">catches policy violations</text>
+
+  <rect class="d-g" x="80" y="404" width="895" height="62" rx="9"/>
+  <text class="dt" x="100" y="432">Tier 1 · Deterministic recomputation</text>
+  <text class="dts" x="100" y="453">arithmetic, lookups, date logic, schema and citation resolution</text>
+  <text class="dtg" x="655" y="442">free</text>
+  <text class="dts" x="780" y="442">clears 40 to 70% of the surface</text>
+
+  <g transform="translate(80,486)">
+    <rect class="d-g" x="0" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="23" y="12">Machine tier, scales at no marginal cost</text>
+    <rect class="d-w" x="320" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="343" y="12">Human tier, scales with headcount</text>
+    <rect class="d-r" x="620" y="0" width="15" height="15" rx="3"/>
+    <text class="dlg" x="643" y="12">The failure state</text>
+  </g>
+  <text class="dlg" x="80" y="520">Most deployments operate almost entirely in Tier 6. Every item moved down a tier is a permanent, compounding saving.</text>
+</svg>

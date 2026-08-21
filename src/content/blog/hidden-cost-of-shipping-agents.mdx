@@ -1,0 +1,222 @@
+---
+title: "The Hidden Cost of Shipping Agents: Why Verification, Not Generation, Decides the Case"
+description: "An agent whose work a human must redo to trust has saved nothing. How to design outputs that are cheap to check, and move from blanket review to earned autonomy."
+pubDate: "2026-08-21"
+heroImage: "/images/blog/validation-cost/hero.svg"
+category: "AI & ML"
+tags: ["human oversight", "verification", "agent validation", "METR study", "ironies of automation", "acceptance sampling", "EU AI Act Article 14", "trust ladder"]
+author: "Naresh Babu"
+readingTime: "19 min read"
+---
+
+Ask how long it takes a person to check one agent output. If nobody has ever timed it, that number is almost certainly where the business case went. An agent whose work a human has to fully redo in order to trust it has not saved anything. It has moved the cost from production to verification and added a licence fee.
+
+This pattern is now familiar enough that I can describe it in advance and be right most of the time.
+
+An agent is built in six to eight weeks. It works. It goes live with a sensible control: a human reviews every output before it takes effect. Everyone agrees that is prudent for the first few months.
+
+## The review queue that never left
+
+Twelve months later the review step is still there. It has acquired a team, a queue, a service level target, and a headcount line. The agent generates a draft in four seconds and a person spends fourteen minutes checking it, because to check it properly they have to open the same source documents, re-read the same policy, and re-derive the same conclusion. **The programme reports eleven thousand cases automated. The finance view shows a cost line that went up.**
+
+I think of this as the verification tax, and it is the most under-modelled cost in enterprise AI. It never appears in the business case, because the case compared the agent's cost to the manual process and quietly forgot that the manual process is still running, just relabelled as review.
+
+Three things make it worse than it first looks.
+
+- **It is permanent by default.** Nobody is ever rewarded for removing a control that has not yet failed. Without an explicit mechanism for earning autonomy, review stays forever.
+- **It degrades.** Humans are poor at sustained monitoring of a mostly correct process. Review quality falls as the agent's accuracy rises, which is exactly backwards from what the control assumes.
+- **It is invisible in the AI budget.** The review headcount sits in the operating unit, not in the technology programme, so the two numbers are never added together in the same room.
+
+> **The claim I would defend hardest.** An agent's value is capped by how cheaply its work can be verified, not by how well it performs. Two agents with identical accuracy can differ by an order of magnitude in delivered value, purely on how long it takes a human to establish that a given output is right.
+
+## What the research shows
+
+### The productivity gain is often not where people think
+
+The most striking recent study is METR's randomised controlled trial with experienced open source developers working in their own repositories. Developers using AI tooling took roughly 19 percent longer to complete their tasks, while believing they had been about 20 percent faster. The perception gap is the finding that matters. Generation felt fast, and the review, correction, and integration steps that consumed the time were not what participants were counting.
+
+The 2024 DORA Accelerate State of DevOps research pointed the same way at an organisational level, associating increases in AI adoption with small decreases in delivery throughput and larger decreases in delivery stability, even as developers reported feeling more productive. Neither result says AI does not work. Both say the same thing: the cost moved downstream and the measurement did not follow it.
+
+### The failure mode was described forty years ago
+
+Lisanne Bainbridge's 1983 paper "Ironies of Automation" identified this exact trap in industrial control. Automating the routine part of a task leaves the human with the residual task of monitoring, which is the task humans perform worst, while eroding the practice that made them competent to intervene. Every AI review queue is a re-run of that experiment. Worth knowing the outcome is well documented before designing a control that depends on sustained human vigilance.
+
+### Verification asymmetry is the lever
+
+The useful idea from computer science is that checking a proposed answer is frequently far cheaper than producing one, but only when the answer arrives in a form that supports checking. A sorted list is trivial to verify. A three paragraph narrative conclusion with no sources costs as much to verify as it did to produce. Same accuracy, wildly different economics.
+
+That is the lever, and almost nobody pulls it. Most agent outputs are optimised for reading when they should be optimised for checking.
+
+### Regulation assumes meaningful oversight, not fast oversight
+
+EU AI Act Article 14 requires that high risk systems be designed so human oversight can be meaningfully exercised, explicitly including the ability to interpret the output correctly and to decide not to use it. A four second click through does not satisfy that standard. The regulatory requirement and the economic requirement converge on the same design: give the reviewer what they need to make a real decision quickly.
+
+## Verification is a design choice
+
+Verification deserves the same engineering seriousness as generation, and it is the higher leverage of the two. Four commitments follow.
+
+1. **Design the output for checking, not for reading.** Every claim decomposed, sourced, and traceable to a record a reviewer can open in one click.
+2. **Push every check as far down the cost hierarchy as it will go.** If a machine can recompute it, no human should read it. People get the residue that genuinely needs judgement.
+3. **Replace blanket review with sampling on a measured defect rate.** Quality control solved this problem for physical manufacturing decades ago and the statistics transfer directly.
+4. **Make autonomy something the agent earns and can lose.** A published ladder with evidence gates in both directions, rather than a permanent control or a leap of faith.
+
+> **The question I would put on the wall.** Stop asking how accurate the agent is. Start asking how many seconds it takes a competent reviewer to be confident that this specific output is right. The first question has been answered for two years. The second decides whether the work returns money.
+
+## Where the minutes go
+
+![Three operating models compared: manual baseline at 22 minutes per case, agent with blanket review at 17.3 minutes with 14 minutes of human re-derivation, and verification-first design at 3.1 minutes](/images/blog/validation-cost/three-operating-models.svg)
+
+*In the middle operating model, where most enterprise agents sit today, generation is a rounding error and verification is the entire cost. Optimising the model changes the thin navy sliver. Optimising verifiability changes the whole bar.*
+
+## Inside the verification model
+
+### The break-even arithmetic, written down
+
+Every agent business case is this equation, whether or not anyone has written it out.
+
+```
+Net value per item = C_manual  minus  ( C_agent + C_verify + p_escape * C_failure )
+
+C_manual   fully loaded cost of a human doing the task
+C_agent    tokens, infrastructure, amortised build
+C_verify   human time to establish the output is right
+p_escape   probability a defect reaches production
+C_failure  cost when it does: rework, remediation, regulatory exposure
+```
+
+Three observations follow, and together they reorder most roadmaps.
+
+- **C_verify dominates.** In the middle lane above it is more than eighty percent of the post-automation cost, yet it receives almost none of the engineering attention.
+- **Cutting C_verify and cutting p_escape pull against each other** under blanket review, because less checking means more escapes. Verification-first design is what breaks that trade-off, since automated checks reduce both terms at once.
+- **C_agent is the smallest term and gets the most airtime.** Model cost matters, but it is not where this case is won or lost.
+
+### Five properties that make an output cheap to check
+
+This is the actual design work. An output with these five properties can usually be checked in one to three minutes instead of ten to twenty, with higher confidence rather than lower.
+
+1. **Decomposed into atomic claims.** Not a paragraph, a list of individually checkable assertions. "Policy 4471 was active on the date of loss." "The deductible is 1,000." "Exclusion 7(b) does not apply because the vehicle was not commercial." A reviewer scans eight atomic claims far faster than they audit one narrative, and they can disagree with exactly one of them.
+2. **Every claim carries a resolvable source.** Not "according to the policy documents" but a deep link to the clause, the record, or the line item, opening at the right place. If a reviewer has to search for the evidence, you have handed the work back to them.
+3. **Machine recomputable wherever arithmetic or lookup is involved.** Any number the agent produced that code could have derived should be recomputed and marked verified before a human ever sees it. In most back office processes that clears 40 to 70 percent of the checkable surface at no marginal cost.
+4. **Diff shaped against a known base.** Reviewing "here is the new document" is expensive. Reviewing "here are the four fields that changed and why" is cheap. Wherever the task modifies an existing artefact, present the delta rather than the result.
+5. **Honest uncertainty with a real abstention path.** Per claim confidence, and a first class ability to say "I could not establish this, escalating". An agent that is uniformly confident forces uniform review. An agent that flags its own weak claims lets the reviewer spend attention where it matters.
+
+> **A reframe worth making internally.** Verifying with clean purpose is the operating goal. A reviewer's time should go on the small set of judgements a machine genuinely cannot make, not on re-establishing facts the system already knows and could have proved. When the console is built that way, reviewers tend to describe the work as more interesting rather than less, and review quality goes up.
+
+### The verification hierarchy
+
+![A six tier verification hierarchy from deterministic recomputation at the cheapest tier up to full human re-derivation at the most expensive, with cost per check and the share of items each tier should handle](/images/blog/validation-cost/verification-hierarchy.svg)
+
+*Verification cost is not a fixed property of the task. It is a function of which tier performs each check. Tiers 1 and 2 alone usually clear most of the checkable surface in a structured back office process, and they cost effectively nothing to run.*
+
+### Sampling instead of checking everything
+
+Once the automated tiers exist and you have a measured defect rate, blanket human review becomes statistically indefensible as well as expensive. Manufacturing settled this decades ago with acceptance sampling, the family of methods standardised in ISO 2859-1, and the logic transfers directly.
+
+- **Define the acceptable quality level per risk tier.** A low risk informational output and an irreversible financial action do not get the same bar, and pretending they do is what makes blanket review feel necessary.
+- **Sample stratified, never uniformly.** Weight toward high value items, low confidence outputs, unusual input patterns, and anything a Tier 2 or 3 check flagged as marginal. A stratified 10 percent sample catches far more than a random 30 percent.
+- **Tighten automatically on evidence.** If the sample defect rate crosses the threshold, the sampling rate rises or the agent drops an autonomy rung, automatically rather than by committee.
+- **Publish the operating characteristic.** Everyone in the governance chain should be able to see what defect rate the current plan would detect, and how quickly. Vague assurance is what forces conservative defaults.
+
+### The trust ladder, where autonomy is earned
+
+| Rung | Human review | Evidence needed to climb | What sends it back down |
+|---|---|---|---|
+| L0 · Draft only | every item | starting position | not applicable |
+| L1 · Approve every action | every item, but fast | eval gate green, verifiable output shipped | any critical finding |
+| L2 · Approve high risk only | high tier actions | 1,000 items at or below the target defect rate | defect rate above the agreed level |
+| L3 · Sampled review | 5 to 20%, stratified | two consecutive clean sampling periods | two defects in one sample |
+| **L4 · Exception only** | under 5% | sustained performance plus a rollback drill | any escaped defect at severity high |
+
+The ladder only works if promotion criteria are published in advance, demotion is automatic rather than discretionary, and the current rung is visible to the business owner. Without automatic demotion it becomes a one way ratchet, and the first incident sends every agent back to L1 at once.
+
+### Designing the review console
+
+The console is where the saving is realised or lost, and it is usually built last by whoever has capacity. Five things I would treat as non-negotiable.
+
+- **Verified claims collapse by default.** The reviewer's eye should land on what needs judgement, not on a wall of green ticks.
+- **Sources open in place.** One click, right paragraph, no searching. This single detail is worth minutes per item.
+- **Amend, not just approve or reject.** Reject and regenerate throws away the eighty percent that was correct, and teaches the reviewer that engagement is pointless.
+- **Every correction becomes an eval case automatically.** The reviewer's judgement is the highest quality signal in the building. Capturing it by hand means not capturing it.
+- **Review time and override rate are measured and reported.** A median review time far below the time needed to read the sources is the signal that oversight has become theatre. Better to know.
+
+## Ten weeks, in order
+
+| Phase | Weeks | What gets done | How you know it worked |
+|---|---|---|---|
+| Measure the tax | 1 | Time and motion on the existing review step. Where do the minutes actually go, per item, per reviewer? | A number everyone agrees is real |
+| Decompose the output | 2 to 3 | Restructure the response into atomic, individually checkable claims with per claim confidence. | A reviewer can disagree with exactly one claim |
+| Wire the sources | 3 to 4 | Deep links that resolve to the exact clause or record. Broken citations fail a programmatic check. | Zero unresolvable citations in production |
+| Tier 1 and 2 checks | 4 to 6 | Deterministic recomputation of everything derivable, policy rules, reconciliation with the system of record. | Most of the checkable surface auto-cleared |
+| Independent verifier | 6 to 7 | Tier 3 verifier from a different model family, scoring claim support against retrieved sources. | Verifier calibrated against human labels |
+| Rebuild the console | 7 to 8 | Collapse verified claims, sources in place, amend flow, automatic capture of corrections as eval cases. | Median review time cut by more than half |
+| Sampling plan | 8 to 9 | Risk tiered acceptance quality levels, stratified sampling, automatic tightening rules. | Second line signs the sampling plan |
+| Publish the ladder | 9 to 10 | Autonomy rungs, promotion criteria, automatic demotion triggers, and a rollback drill. | A drill demotes an agent successfully |
+
+### What I have learned doing this
+
+- **Measure the tax before proposing anything.** A time and motion number ends the debate about whether the problem is real. Estimates never do, and the estimate is always too low.
+- **Reviewers are the best source of design requirements and are almost never asked.** Two hours sitting with the review team produces a better console specification than two weeks of workshops.
+- **Do not skip the amend flow.** Approve or reject consoles produce rubber stamping, because rejecting means throwing away work that was mostly right and starting again.
+- **The independent verifier has to be genuinely independent.** Using the same model that generated the output to check it produces agreement, not verification.
+- **Publish the ladder before you need it.** Autonomy decisions made under incident pressure are always conservative and rarely revisited.
+- **Watch for review time collapse.** If median review time drops far below the time required to genuinely check an item, you have not improved verification, you have lost it.
+
+## What it is worth
+
+Using the illustrative figures above, at 120,000 cases a year and a fully loaded reviewer cost of 60 dollars an hour.
+
+| Operating model | Human min per case | Annual human cost | Versus manual |
+|---|---|---|---|
+| Manual baseline | 22.0 | $2.64M | none |
+| Agent with blanket review | 17.0 | $2.04M | 23% saved |
+| **Verification first, sampled review** | **2.7** | **$0.32M** | **88% saved** |
+
+The difference between the two agent rows, which use the same agent, is roughly 1.72 million a year.
+
+That comparison is the one that matters, not the first. Both agent rows use the same agent. What differs is how the work is presented for checking and who does the checking, and that difference is worth roughly three times what the automation itself delivered.
+
+### Five things that improve beyond the headline number
+
+1. **Throughput stops being headcount bound.** Under blanket review, doubling volume means doubling reviewers. Under sampled review it does not, which is the difference between an automation and a genuine capacity change.
+2. **Quality goes up rather than down.** Counter-intuitive and consistent. Deterministic checks never get tired, never skip a step at 4pm, and catch classes of arithmetic and policy error that human reviewers reliably miss.
+3. **The compliance evidence comes free.** Per claim sources, verification results, sampling plans, and reviewer decisions are exactly what Article 14 oversight evidence, ISO/IEC 42001 operational records, and AIUC-1 accountability evidence require.
+4. **Reviewer roles get better.** Moving people from re-deriving routine answers to adjudicating genuinely ambiguous cases raises retention and review quality. It is also a much easier internal story than automating someone's job.
+5. **The next agent is cheaper.** The verification stack, meaning recomputation, rules engine, verifier, console, and sampling framework, is reusable. Agent two inherits it.
+
+> **A test for any agent business case.** Ask for the projected cost per item including human verification, at the review rate you will actually be operating at in month twelve. If the case only works on the assumption that review disappears on its own, it does not work, because nothing in the plan makes it disappear.
+
+## Where I would start on Monday
+
+1. **Measure your verification tax this month.** Pick the busiest agent, sit with the reviewers, time twenty items. You will have the case for everything else on this list by Friday.
+2. **Restructure one agent's output into atomic sourced claims.** Two to three weeks, the highest leverage change available, and it needs no model work at all.
+3. **Recompute everything computable.** Every number the agent produced that code could have derived should arrive at the console already verified.
+4. **Rebuild the review console around the flagged residue.** Collapse what is verified, surface what is uncertain, allow amendment, capture every correction as an eval case.
+5. **Publish the trust ladder before the next incident.** Promotion criteria and automatic demotion triggers, agreed with second line, in writing.
+6. **Report cost per verified item, not cost per generated item.** That single change to the management report reorders the roadmap on its own.
+
+> **If you only do one thing.** Time twenty reviews. The number will be larger than anyone in the steering committee expects, and it turns an abstract architectural argument into a funded piece of work in a single meeting.
+
+## If you want to read further
+
+1. **METR, "Measuring the Impact of Early-2025 AI on Experienced Open-Source Developer Productivity" (2025).** The randomised trial where developers were slower with AI tooling while believing they were faster. The most useful single study here. [metr.org](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/)
+2. **Lisanne Bainbridge, "Ironies of Automation" (Automatica, 1983).** Forty years old and still the clearest account of why leaving humans the monitoring task fails. [Bainbridge, 1983](https://ckrybus.com/static/papers/Bainbridge_1983_Automatica.pdf)
+3. **DORA, Accelerate State of DevOps Report 2024.** Organisation level evidence that AI adoption moved cost downstream into delivery throughput and stability. [dora.dev/research](https://dora.dev/research/)
+4. **ISO 2859-1, sampling procedures for inspection by attributes.** The statistical basis for replacing blanket review with a defensible sampling plan. [iso.org/standard/1141](https://www.iso.org/standard/1141.html)
+5. **EU AI Act, Article 14, human oversight.** The regulatory definition of oversight a person can meaningfully exercise. [eur-lex.europa.eu](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
+6. **Anthropic, citations and structured outputs.** Making claim level sourcing a property of the model call rather than a post-processing step. [docs.claude.com](https://docs.claude.com/en/docs/build-with-claude/citations)
+7. **Companion piece: Two Clocks, One Library.** The eval gate is what lets you climb the trust ladder on evidence rather than optimism. [nareshbabu.me/blog](/blog/evals-before-and-after-you-publish)
+8. **Companion piece: What Did Your Agents Burn Last Month?** The other half of the cost model, the token side, and why it is the smaller term. [nareshbabu.me/blog](/blog/token-burn-rate-and-retry-loops)
+
+## The short version
+
+**@NBA.naresh** · [linkedin.com/in/naresh-babu-anapakala-72734534](https://www.linkedin.com/in/naresh-babu-anapakala-72734534)
+
+1. **The cost of an agent is not the model bill.** It is the model bill plus the human time required to trust the output, and the second term is usually five to twenty times the first.
+2. **Blanket review destroys the case quietly.** If a reviewer has to re-derive the answer in order to check it, the automation eliminated typing, not work.
+3. **Verifiability is a design property, not a review process.** Outputs can be built to be checked in seconds: decomposed, sourced, recomputable, diff shaped, and honest about uncertainty.
+4. **Then the review model can change.** Move from checking everything to a verification hierarchy plus statistically grounded sampling, with autonomy earned on measured defect rates rather than granted on confidence.
+5. **This is where the step change is.** Taking verification from fourteen minutes to under three is a bigger economic event than any model upgrade available to you this year.
+
+Written by **Naresh Babu Anapakala**. If you have timed your own review queue and the number surprised you, I would like to hear about it on [LinkedIn](https://www.linkedin.com/in/naresh-babu-anapakala-72734534).
+
+*Time and cost figures here are illustrative and rounded for clarity, drawn from the shape of the problem rather than a specific organisation. Re-derive them with your own time and motion data before using them in a business case. The ratios travel well between organisations, the absolute numbers do not.*

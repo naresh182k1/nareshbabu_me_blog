@@ -1,0 +1,234 @@
+---
+title: "Two Clocks, One Library: Evaluating Agents Before and Long After You Publish"
+description: "Most teams evaluate an agent once, the week it launches. Here is the two clock model, a release gate and a surveillance loop, both drawing on one versioned case library."
+pubDate: "2026-08-21"
+heroImage: "/images/blog/agent-evals/hero.svg"
+category: "AI & ML"
+tags: ["evals", "agent evaluation", "LLM as judge", "post-market monitoring", "EU AI Act", "drift", "tau-bench", "SWE-bench", "CI gates"]
+author: "Naresh Babu"
+readingTime: "21 min read"
+---
+
+Ask a team when their agent was last evaluated. If the answer is the week it launched, they do not have an evaluation programme, they have a photograph of a moving object. Agents rarely fail on release day. They fail three months later, quietly, when a model was updated or an index was refreshed and nobody was measuring.
+
+The shape of this failure is remarkably consistent, so let me describe it before getting to what to do about it.
+
+A team builds an agent. Before launch they do the right thing: they assemble a few hundred test cases, run them, tune until the numbers look good, and present a scorecard to a governance forum. The agent goes live. The scorecard is filed.
+
+Then the evaluation stops. Not by decision, by omission. There is no owner, no schedule, and no trigger.
+
+## The cliff nobody sees coming
+
+Three months later, one of these has usually happened.
+
+- The model provider shipped a point update. Behaviour changed on a class of inputs nobody tested.
+- The knowledge base was re-indexed with a new chunking strategy, and retrieval quality dropped for long documents.
+- A downstream API renamed a field, and the agent now produces a plausible answer from incomplete data.
+- A product launched, and 15 percent of incoming questions are about something the case library has never seen.
+- Someone edited the system prompt to fix one complaint and regressed four behaviours that were never re-tested.
+
+**None of these raise an alert.** The agent keeps answering. Latency is fine, error rates are fine, the dashboard is green. Quality has fallen off a cliff and the only instrument pointed at it is customer complaints, which arrive weeks late, heavily filtered, and attached to a reputational cost.
+
+I call it the evaluation cliff: the moment an agent leaves the only environment where anyone was measuring whether it was any good.
+
+> **The distinction the whole piece turns on.** Pre-publish evals tell you whether a change is safe to ship. Post-publish evals tell you whether the thing you shipped is still working. They answer different questions, run on different clocks, and doing one does not give you the other.
+
+## What the field has worked out
+
+### Benchmarks moved from answers to trajectories
+
+The public benchmark suite has shifted decisively toward agentic evaluation, and the shift is instructive. Where earlier benchmarks scored a single answer, the current generation scores a trajectory: did the agent take sensible steps, use the right tools, recover from an error, and reach a correct end state. SWE-bench and its verified subset measure whether an agent can actually resolve a real GitHub issue. WebArena measures completion of realistic web tasks. GAIA measures multi-step reasoning with tool use. Tau-bench measures agents in customer service settings where a policy has to be followed while interacting with a simulated user, and it introduced the metric that matters most in an enterprise: reliability across repeated attempts, not best of one.
+
+That last point deserves weight. Pass rate on one attempt is a demo metric. Pass rate on the same task attempted eight times, all of which must succeed, is a production metric, and the gap between the two is where most enterprise disappointment lives.
+
+### Judging by model became credible, then became something to govern
+
+Using a strong model to grade another model's output was treated as a shortcut in 2023 and is now standard practice, following work such as Zheng et al. on MT-Bench and Chatbot Arena, which showed strong judge models agree with human preference at rates comparable to human to human agreement. The same research documented the failure modes that matter in production: position bias, verbosity bias, self preference, and drift when the judge model itself is updated.
+
+The practical consequence, and the part most teams skip: your judge needs its own evaluation. Calibrate it against a human labelled sample, re-calibrate when the judge model version changes, and version the rubric like code.
+
+### Regulators now ask for the second half explicitly
+
+This is what moves continuous evaluation from good practice to obligation. The EU AI Act does not stop at pre-market conformity. Article 15 requires an appropriate level of accuracy, robustness, and cybersecurity across the lifecycle, and Article 72 requires providers of high risk systems to establish and document a post-market monitoring system proportionate to the risks, actively collecting and analysing performance data across the system's lifetime. Article 73 adds reporting duties for serious incidents.
+
+ISO/IEC 42001 makes the same demand in management system language through its performance evaluation clauses. AIUC-1 asks for evidence of ongoing monitoring rather than a point in time test. In Canada, OSFI Guideline E-23 expects ongoing monitoring proportionate to model risk. The direction is unambiguous. A launch scorecard with no successor is now a documented gap.
+
+## Two clocks, one library
+
+Pre-publish and post-publish evaluation are not two projects and not two toolchains. They are two consumers of a single versioned case library, running on different clocks with different tolerances.
+
+- **The release clock** is event driven. It fires on every change to any component: prompt, model, retrieval config, tool schema, policy. It is blocking, exhaustive against the library, and deliberately biased toward false positives. It should occasionally stop a safe release rather than ever pass an unsafe one.
+- **The surveillance clock** is continuous. It samples live traffic, scores it, watches distributions, and is biased toward cheapness, because it runs forever. It is not blocking. It triggers investigation, rollback, or a new release clock run.
+
+The asset that joins them is the case library. Production failures found by the surveillance clock become permanent cases, which means the release clock can never let the same defect ship twice. That feedback edge is the whole design. Without it you have two disconnected monitoring activities. With it you have a system that gets measurably harder to break every month.
+
+> **The line I keep coming back to.** An eval suite that does not grow from production incidents is a fossil. The best predictor of whether an organisation's agents will still be trustworthy in a year is not the size of their launch eval set. It is whether last month's production failures are in this month's regression suite.
+
+## How the pieces fit together
+
+![Two clocks: a release clock running from change through pre-publish eval, release gate, shadow and canary into production, and a surveillance clock beneath sampling live traffic, judging it, detecting drift and acting, with confirmed failures flowing up into a shared versioned case library](/images/blog/agent-evals/two-clocks.svg)
+
+*The two clocks are joined by one artefact. Every production failure the surveillance clock confirms is promoted into the case library, so the release clock physically cannot let that defect ship again.*
+
+## Inside the framework
+
+### Build the case library first, from four sources
+
+Everything else depends on this asset, so it gets built first and owned explicitly. A production grade library draws from four sources, and teams that use only the first are the ones who hit the cliff.
+
+![Four sources feeding one versioned case library: golden cases, sampled production traffic, adversarial cases and incident derived cases, consumed by both the release gate and the surveillance clock](/images/blog/agent-evals/case-library.svg)
+
+*One asset, four inputs, two consumers. The fourth input, incident derived cases, is what turns the library from a static test set into something that compounds.*
+
+Version it like source code. Each case should carry an id, an owner, a risk tier, its provenance, the expected behaviour, and a last reviewed date. A case whose expected output is stale because policy changed is worse than no case at all, so review is a scheduled activity rather than an ad-hoc one.
+
+### What a blocking release gate actually contains
+
+The gate runs on every change to any component that can alter behaviour, and that list is longer than teams assume: system prompt, tool definitions and schemas, retrieval configuration and index contents, model identifier or version, temperature and sampling parameters, guardrail thresholds, and any policy the agent is asked to follow.
+
+| Dimension | What it measures | Typical gate condition |
+|---|---|---|
+| Task success | Did the agent reach the end state, scored programmatically where possible | No regression versus baseline beyond the noise band |
+| Reliability | Same task, repeated k times, all must pass | Report pass at k, gate on the strictest tier |
+| **Safety** | Adversarial suite, refusal correctness, data leakage | Zero critical findings, hard block |
+| Groundedness | Claims supported by retrieved sources, citations resolvable | Hard floor for any customer facing agent |
+| Cost and latency | Tokens and wall time per successful task | Budget ceiling, so a quality win that triples cost is a decision rather than a default |
+
+Two rules make the gate trustworthy. First, always run a baseline in the same job, meaning the current production configuration on the same cases in the same conditions. Absolute scores drift with judge versions and infrastructure. The delta is what you can defend. Second, establish a noise band before setting thresholds. Run the identical configuration five times and measure the spread. A gate tighter than your own measurement noise will block real releases at random and be switched off within a month.
+
+### Shadow and canary, the stage that catches what offline evals cannot
+
+Shadow mode runs the new configuration against real production traffic without exposing results to users. It is the only cheap way to discover that the input distribution has moved away from your case library. Run it for a few days on meaningful volume and compare the score distribution to the offline run. A large gap means the library is stale, which is itself the most valuable finding of the release.
+
+Canary exposes a small slice of real users, with automatic rollback wired to guardrail triggers, override rate, abstention rate, and cost per task. Canary catches integration failures, latency blowups, and cost surprises that no offline harness will surface.
+
+### The surveillance clock: four instruments, running forever
+
+Post-publish evaluation is a sampling problem. You cannot judge every run affordably, and you do not need to.
+
+1. **Programmatic checks on every run.** Schema validity, citation resolvability, forbidden phrases, tool call legality, numeric range checks. Nearly free, and they catch hard failures immediately.
+2. **Judge scoring on a stratified sample.** One to five percent is a sensible starting range, weighted toward high risk intents and low confidence runs rather than sampled uniformly. Track the distribution, not the mean, because the mean hides a growing tail.
+3. **Behavioural telemetry as a proxy.** Abstention rate, escalation rate, override rate, user retry rate, conversation length, thumbs down rate. Cheap, covers all traffic, and moves before quality scores do.
+4. **Drift detection on inputs.** Watch the distribution of intents arriving. A new cluster appearing is a signal to extend the library before quality drops, which makes it the only genuinely proactive instrument in the set.
+
+#### Triggers worth wiring up explicitly
+
+- A model version change, announced or detected, including silent point updates, which is why pinning versions matters
+- Retrieval index rebuild, re-chunking, or embedding model change
+- Any tool schema or downstream API change
+- A confirmed production incident of severity high or above
+- Judge score crossing a floor, or override rate crossing a ceiling
+- Calendar: quarterly at minimum, regardless of change activity
+
+### The seven signals, and what each one is for
+
+| Signal | Clock | When it runs | What only this catches | Detects in |
+|---|---|---|---|---|
+| 1 · Golden case suite | Release | every commit | regression on known good behaviour | minutes |
+| 2 · Adversarial suite | Release | every release and quarterly | injection, leakage, tool abuse | hours |
+| 3 · Shadow run on live traffic | Release | 1 to 7 days pre-release | a case library that no longer matches reality | days |
+| 4 · Canary with auto rollback | Release | first 1 to 5 percent of traffic | integration, latency, and cost blowups | minutes |
+| **5 · Programmatic checks, all runs** | Surveillance | continuous, all traffic | broken citations, illegal tool calls, bad schema | seconds |
+| **6 · Judge on a sample** | Surveillance | continuous, 1 to 5 percent | slow quality drift and silent model change | hours to days |
+| **7 · Override and drift telemetry** | Surveillance | continuous, all traffic | humans quietly disagreeing with the agent | days |
+
+Signals 5 to 7 are the half most teams never build. They are also the cheapest per unit of traffic covered.
+
+### Governing the judge
+
+If a model judge gates your releases, that judge is production infrastructure. Pin its version, version the rubric alongside the code, and keep a human labelled calibration set of 50 to 100 cases. Re-run calibration whenever the judge model or rubric changes, and report judge to human agreement as a governance metric. When agreement falls below roughly 80 percent on your domain, the rubric is ambiguous rather than the model being weak. Rewrite the rubric.
+
+Use pairwise comparison rather than absolute scoring wherever you can. Judges are markedly more reliable at "which of these two is better" than at "score this out of five", and pairwise comparison against the baseline output is exactly the question a release gate needs answered.
+
+### Evaluating any agent type: change the unit, keep the method
+
+The most common objection I hear is "our agent is different, it cannot be evaluated that way". In practice the method stays constant and only the unit of measurement changes.
+
+| Agent type | Dominant failure | Score this unit | Hard gate |
+|---|---|---|---|
+| Conversational support | confident wrong answer | final turn and policy adherence | zero unsupported claims |
+| Retrieval and knowledge | plausible answer, wrong source | groundedness and citation resolution | every claim cited |
+| Workflow and tool using | right answer, wrong side effect | trajectory and end state in the system | zero illegal tool calls |
+| Code writing | passes tests, breaks intent | test pass, diff review, build | no reduction in coverage |
+| Multi-agent | error amplified down the chain | per hop scoring, not just the end | hop level attribution exists |
+| Long horizon autonomous | silent divergence from goal | checkpoint states and cost per outcome | budget and time kill switch |
+
+Constant across all six: a versioned case library, a baseline run in the same job, pass at k rather than pass at 1, adversarial coverage, and production failures promoted back into the library.
+
+## Standing it up in eight weeks
+
+| Phase | Weeks | What gets built | How you know it worked |
+|---|---|---|---|
+| Define good | 1 | A written definition of success per agent, agreed with the business owner. Risk tier. Failure severities. | The business owner signs the definition |
+| Case library v1 | 1 to 3 | 100 to 300 golden cases, 50 adversarial, 100 replayed production runs, versioned in the repo. | Any engineer can run the full set locally |
+| Scorers | 3 to 4 | Programmatic checks, rubric judge with a calibration set, trajectory scoring where relevant. | Judge to human agreement above 80 percent |
+| Baseline and noise band | 4 | Five identical runs to measure spread, thresholds set outside the noise band. | Repeat runs do not flip the gate |
+| Release gate in CI | 5 | Blocking job on every change to prompt, model, index, tools, or policy. Scorecard as a build artefact. | A deliberately regressed prompt is blocked |
+| Shadow and canary | 6 | Shadow runner against live traffic, canary with automatic rollback on guardrail and cost triggers. | Rollback fires in a drill |
+| Surveillance | 7 | Programmatic checks on all runs, sampled judge, override and drift telemetry, alert routing. | An injected quality drop raises an alert |
+| The feedback edge | 8 | Incident to case pipeline with an owner and a service level. The step that makes the system compound. | Last month's incident is in this month's suite |
+
+### Things I learned the hard way
+
+- **Start with 100 cases, not 1,000.** Teams that try to build an exhaustive library first ship nothing for a quarter. A hundred well chosen cases wired into CI beats a thousand in a spreadsheet.
+- **Measure your noise before setting a threshold.** The fastest way to kill an eval programme is a flaky gate. Engineers disable flaky gates, and they are right to.
+- **Do not let the judge grade its own homework.** Where affordable, use a different model family for judging than for generation. Self preference flatters exactly the outputs you should be most suspicious of.
+- **Give the case library an owner with a name.** Shared ownership means quarterly rot. One named owner, a review cadence, and a last reviewed date per case.
+- **Alert on distributions, not single runs.** One bad output is noise. A shifted distribution is the signal that correlates with incidents.
+- **Budget for the eval spend.** Continuous judging costs real money. Sizing it up front avoids the quarter three conversation where surveillance gets switched off to save cost, which is the worst possible saving.
+
+## What it is worth
+
+The whole economic argument rests on one measurable asymmetry: where a defect is caught determines what it costs.
+
+| Caught at | What it costs to resolve | Relative cost |
+|---|---|---|
+| Pre-publish eval gate | Engineering hours, before anyone sees it | 1x |
+| Shadow or canary | Rollback plus investigation, limited exposure | 3 to 5x |
+| Production surveillance | Incident handling, some customer impact, remediation | 10 to 20x |
+| Customer complaint or regulator | Remediation, disclosure, review of every affected case, trust cost | 30 to 100x |
+
+### Four things that improve beyond the defect maths
+
+1. **Release velocity goes up, not down.** A trustworthy gate replaces the committee that used to review every change by hand. I have seen prompt and policy changes move from a two week review cycle to same day, because the gate is the review.
+2. **Human review load falls.** Once you can show sustained groundedness and low override rates for a class of cases, you can justify moving that class from full review to sampled review. That is usually the largest hard dollar saving in the whole programme.
+3. **Model migration stops being frightening.** With a case library and a baseline, swapping a model becomes an afternoon experiment with a scorecard rather than a quarter long project. Given how fast the price and performance frontier moves, that optionality is worth real money on its own.
+4. **The compliance artefact is a by-product.** Article 15 and Article 72 evidence, ISO/IEC 42001 performance evaluation records, AIUC-1 reliability evidence, all of it falls out of a system you were going to build anyway for engineering reasons.
+
+> **A rough sizing rule.** Budget roughly 15 to 20 percent of the agent's build cost for the eval system in year one, and 5 to 8 percent of run cost after that. Below that range, teams build a launch scorecard and stop. Above it, the programme starts optimising the eval rather than the agent.
+
+## Where I would start on Monday
+
+1. **Write down what good means, per agent, this week.** If the business owner cannot state it in a paragraph, no framework will rescue that ambiguity.
+2. **Ship 100 golden cases into CI before building anything else.** A small suite that blocks a bad merge beats a large suite nobody runs.
+3. **Measure the noise band, then set thresholds outside it.** Do this before the first gate goes live or the gate will not survive its first month.
+4. **Turn on the cheap surveillance signals immediately.** Programmatic checks and override telemetry cover all traffic and cost almost nothing. Fastest route off the cliff.
+5. **Wire the feedback edge and give it an owner.** Every confirmed production failure becomes a permanent case within one sprint.
+6. **Pin model versions and treat provider updates as releases.** An unpinned model is an untested change entering production on somebody else's schedule.
+
+> **If you only do one thing.** Turn on sampled judging with a documented rubric, at one percent of traffic, this month. It is the cheapest instrument that would have caught the last three quality incidents you did not know you had.
+
+## If you want to read further
+
+1. **Zheng et al., "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena" (2023).** The foundational work on judge reliability and its biases. Read it before trusting a judge in a gate. [arxiv.org/abs/2306.05685](https://arxiv.org/abs/2306.05685)
+2. **Yao et al., tau-bench.** Agent evaluation in customer service settings with policy constraints, and the source of the pass at k reliability framing. [arxiv.org/abs/2406.12045](https://arxiv.org/abs/2406.12045)
+3. **SWE-bench and SWE-bench Verified.** The reference benchmark for code writing agents, and a good model for a verifiable end state eval. [swebench.com](https://www.swebench.com)
+4. **GAIA, a benchmark for General AI Assistants.** Multi-step, tool using tasks with unambiguous answers, a useful design pattern for internal suites. [arxiv.org/abs/2311.12983](https://arxiv.org/abs/2311.12983)
+5. **EU AI Act, Articles 15, 72, and 73.** Accuracy and robustness, post-market monitoring, and serious incident reporting, which together are the legal basis for the surveillance clock. [eur-lex.europa.eu](https://eur-lex.europa.eu/eli/reg/2024/1689/oj)
+6. **NIST AI Risk Management Framework, Measure and Manage functions.** The clearest public articulation of continuous measurement expectations. [nist.gov](https://www.nist.gov/itl/ai-risk-management-framework)
+7. **Promptfoo, DeepEval, and RAGAS.** Three open source tools worth starting with, for gating, assertion style evals, and retrieval scoring respectively. [promptfoo.dev](https://www.promptfoo.dev)
+8. **Companion piece: The Evals Framework for Agents.** The mechanics of the four scorer types and a hands-on first build. [nareshbabu.me/blog/evals-framework-for-agents](/blog/evals-framework-for-agents)
+
+## The short version
+
+**@NBA.naresh** · [linkedin.com/in/naresh-babu-anapakala-72734534](https://www.linkedin.com/in/naresh-babu-anapakala-72734534)
+
+1. **A launch eval is a photograph of a moving object.** It tells you the agent was acceptable on one day against one set of cases. It says nothing about tomorrow.
+2. **Quality decays for reasons outside your release cycle**, including provider model updates, index refreshes, tool API changes, upstream prompt edits, and genuine shifts in what users ask.
+3. **The answer is two clocks and one asset.** A release clock that gates every change, a surveillance clock that runs continuously, both drawing from the same versioned case library.
+4. **Every agent type is evaluable.** Conversational, retrieval, tool using, code writing, multi-agent, long horizon. What changes is the unit of measurement, not the method.
+5. **The economics are decisive.** A defect caught by the gate costs engineering hours. The same defect found by a customer arrives with a multiple of 30 to 100 on the cost.
+
+Written by **Naresh Babu Anapakala**. If you are building an eval programme and want to compare notes, I am on [LinkedIn](https://www.linkedin.com/in/naresh-babu-anapakala-72734534).
+
+*Benchmarks, tooling, and regulatory timelines in this area move quickly. Cost multiples and sampling ranges reflect patterns I have seen rather than a formal study, and should be re-derived with your own data before being used in a business case.*

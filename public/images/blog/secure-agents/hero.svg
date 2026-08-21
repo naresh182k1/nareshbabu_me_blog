@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg-sa" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b1d2a"/>
+      <stop offset="100%" style="stop-color:#1f3a5f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg-sa)"/>
+  <g font-family="Inter, system-ui, sans-serif">
+    <text x="600" y="112" text-anchor="middle" font-size="15" letter-spacing="6" font-weight="700" fill="#e8913a">AI GOVERNANCE</text>
+    <text x="600" y="196" text-anchor="middle" font-size="52" font-weight="700" fill="#f1f5f9">One Control Plane,</text>
+    <text x="600" y="262" text-anchor="middle" font-size="52" font-weight="700" fill="#93c5fd">Three Rulebooks</text>
+    <line x1="480" y1="312" x2="720" y2="312" stroke="#e8913a" stroke-width="3"/>
+    <g transform="translate(140,360)">
+      <rect width="280" height="112" rx="14" fill="#0f2335" stroke="#3b5a80" stroke-width="2"/>
+      <text x="140" y="46" text-anchor="middle" font-size="19" font-weight="700" fill="#e2e8f0">ISO/IEC 42001</text>
+      <text x="140" y="76" text-anchor="middle" font-size="15" fill="#94a3b8">management system</text>
+    </g>
+    <g transform="translate(460,360)">
+      <rect width="280" height="112" rx="14" fill="#0f2335" stroke="#e8913a" stroke-width="2"/>
+      <text x="140" y="46" text-anchor="middle" font-size="19" font-weight="700" fill="#f0a85c">EU AI Act</text>
+      <text x="140" y="76" text-anchor="middle" font-size="15" fill="#94a3b8">Articles 9 to 15</text>
+    </g>
+    <g transform="translate(780,360)">
+      <rect width="280" height="112" rx="14" fill="#0f2335" stroke="#3b5a80" stroke-width="2"/>
+      <text x="140" y="46" text-anchor="middle" font-size="19" font-weight="700" fill="#e2e8f0">AIUC-1</text>
+      <text x="140" y="76" text-anchor="middle" font-size="15" fill="#94a3b8">independent audit</text>
+    </g>
+    <text x="600" y="538" text-anchor="middle" font-size="18" fill="#94a3b8">Eight controls, built once, evidenced three ways.</text>
+    <text x="600" y="586" text-anchor="middle" font-size="15" fill="#64748b">nareshbabu.me</text>
+  </g>
+</svg>
