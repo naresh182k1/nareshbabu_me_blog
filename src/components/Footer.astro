@@ -9,7 +9,8 @@ const currentYear = new Date().getFullYear();
       <div class="max-w-2xl mx-auto text-center">
         <h2 class="text-2xl sm:text-3xl font-bold mb-3">Stay Updated</h2>
         <p class="text-white/70 mb-6">Get the latest insights on technology, data engineering, and digital transformation delivered to your inbox.</p>
-        <form class="flex flex-col sm:flex-row gap-3" data-newsletter-form>
+        <form class="flex flex-col sm:flex-row gap-3" data-newsletter-form data-source="footer">
+          <input type="text" name="company_website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <input
             type="email"
             placeholder="Enter your email"
@@ -20,6 +21,7 @@ const currentYear = new Date().getFullYear();
             Subscribe
           </button>
         </form>
+        <p class="hidden text-white/70 text-xs mt-3" data-newsletter-status></p>
         <p class="text-white/40 text-xs mt-3">No spam. Unsubscribe anytime.</p>
       </div>
     </div>
@@ -70,7 +72,7 @@ const currentYear = new Date().getFullYear();
           <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-secondary transition-colors" aria-label="Twitter / X">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-          <a href="mailto:hello@nareshbabu.me" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-secondary transition-colors" aria-label="Email">
+          <a href="mailto:naresh@infiniai.tech" class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-secondary transition-colors" aria-label="Email">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
           </a>
         </div>
@@ -93,22 +95,45 @@ const currentYear = new Date().getFullYear();
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formEl = e.target as HTMLFormElement;
-      const email = (formEl.querySelector('input[type="email"]') as HTMLInputElement)?.value;
+      const emailInput = formEl.querySelector('input[type="email"]') as HTMLInputElement;
+      const honeypot = formEl.querySelector('input[name="company_website"]') as HTMLInputElement;
+      const status = formEl.querySelector('[data-newsletter-status]') as HTMLElement | null;
+      const email = emailInput?.value.trim();
       if (!email) return;
+
+      if (honeypot?.value) return; // bot filled the hidden field — silently drop
 
       const btn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement;
       const origText = btn.textContent;
       btn.textContent = 'Subscribing...';
       btn.disabled = true;
 
-      // Placeholder: Replace with actual newsletter API endpoint
       try {
-        // await fetch('/api/subscribe', { method: 'POST', body: JSON.stringify({ email }), headers: { 'Content-Type': 'application/json' } });
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            source: formEl.dataset.source || 'footer',
+            page: window.location.pathname,
+            pageTitle: document.title,
+          }),
+        });
+        if (!res.ok) throw new Error('subscribe failed');
+
         btn.textContent = 'Subscribed!';
-        (formEl.querySelector('input[type="email"]') as HTMLInputElement).value = '';
-        setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000);
+        emailInput.value = '';
+        if (status) {
+          status.textContent = "You're on the list.";
+          status.classList.remove('hidden');
+        }
       } catch {
         btn.textContent = 'Error. Try again.';
+        if (status) {
+          status.textContent = 'Something went wrong — please try again.';
+          status.classList.remove('hidden');
+        }
+      } finally {
         setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000);
       }
     });

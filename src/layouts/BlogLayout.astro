@@ -147,13 +147,65 @@ const formattedUpdatedDate = updatedDate ? new Date(updatedDate).toLocaleDateStr
     <div class="mt-12 p-8 bg-primary rounded-2xl text-white text-center">
       <h3 class="text-2xl font-bold mb-2">Enjoyed this article?</h3>
       <p class="text-white/80 mb-6">Subscribe to get notified when I publish new insights.</p>
-      <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" data-newsletter-form>
+      <form class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" data-newsletter-form data-source="article" data-page-title={title}>
+        <input type="text" name="company_website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <input type="email" placeholder="Your email address" required
-               class="flex-1 px-4 py-3 rounded-lg text-text-dark focus:outline-none focus:ring-2 focus:ring-secondary" />
+               class="flex-1 px-4 py-3 rounded-lg bg-white text-text-dark placeholder-text-light focus:outline-none focus:ring-2 focus:ring-secondary" />
         <button type="submit" class="px-6 py-3 bg-secondary text-white rounded-lg font-semibold hover:bg-secondary-light transition-colors">
           Subscribe
         </button>
+        <p class="hidden text-sm mt-1 sm:col-span-2" data-newsletter-status></p>
       </form>
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  document.querySelectorAll('[data-newsletter-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formEl = e.target as HTMLFormElement;
+      const emailInput = formEl.querySelector('input[type="email"]') as HTMLInputElement;
+      const honeypot = formEl.querySelector('input[name="company_website"]') as HTMLInputElement;
+      const status = formEl.querySelector('[data-newsletter-status]') as HTMLElement | null;
+      const email = emailInput?.value.trim();
+      if (!email) return;
+
+      if (honeypot?.value) return; // bot filled the hidden field — silently drop
+
+      const btn = formEl.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const origText = btn.textContent;
+      btn.textContent = 'Subscribing...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            source: formEl.dataset.source || 'article',
+            page: window.location.pathname,
+            pageTitle: formEl.dataset.pageTitle || document.title,
+          }),
+        });
+        if (!res.ok) throw new Error('subscribe failed');
+
+        btn.textContent = 'Subscribed!';
+        emailInput.value = '';
+        if (status) {
+          status.textContent = "You're on the list.";
+          status.classList.remove('hidden');
+        }
+      } catch {
+        btn.textContent = 'Error. Try again.';
+        if (status) {
+          status.textContent = 'Something went wrong — please try again.';
+          status.classList.remove('hidden');
+        }
+      } finally {
+        setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000);
+      }
+    });
+  });
+</script>

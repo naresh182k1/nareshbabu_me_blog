@@ -147,7 +147,15 @@ All content is MDX with validated frontmatter. Defined in `src/content.config.ts
 | tags | string[] | No | |
 | author | string | No | Default: "Naresh Babu" |
 
-**URL pattern:** `/decks/[brand-folder]/[filename]`
+**Status: unpublished.** The `/decks` and `/decks/[...slug]` pages, the
+"Decks" nav item, and the Pitch Decks collection in Decap CMS were removed
+from the live site. The MDX content under `src/content/decks/`, the `decks`
+schema in `content.config.ts`, and `DeckLayout.astro` were left in place
+(unused, not routed) so the section can be restored later — either revert
+the commit that removed `src/pages/decks/`, or re-add the nav item and
+pages if the section should come back.
+
+**URL pattern (when re-enabled):** `/decks/[brand-folder]/[filename]`
 **Layout:** `DeckLayout.astro` (standalone, does NOT use BaseLayout)
 
 #### How slides work
@@ -214,7 +222,6 @@ Blog → /blog
 Expertise → /expertise
 Insights → /insights
 Reports → /reports
-Decks → /decks
 Contact → /contact
 ```
 
@@ -307,6 +314,52 @@ Accessible at `/admin`. Configured in `public/admin/config.yml`.
 
 ### New insight or report
 Same pattern — create MDX in the relevant `src/content/` folder.
+
+---
+
+## Newsletter → Google Sheets
+
+Both newsletter forms — `Footer.astro` (every page) and the "Enjoyed this
+article?" CTA in `BlogLayout.astro` (every blog post) — POST to
+`/api/subscribe`, a Cloudflare Pages Function at `functions/api/subscribe.js`.
+It appends `[timestamp, email, source, page, pageTitle]` to a Google Sheet
+using a Google Cloud service account — no third-party form service, no
+secret ever reaches the browser. Each form also carries a hidden honeypot
+field (`company_website`) to drop bot submissions server-side.
+
+### One-time setup
+
+1. **Create the sheet.** A new Google Sheet, any name. Add a header row to
+   the first tab: `Timestamp | Email | Source | Page | Page Title`. Note
+   the sheet ID from its URL (`.../spreadsheets/d/<SHEET_ID>/edit`).
+2. **Create a service account.**
+   [console.cloud.google.com](https://console.cloud.google.com) → a project
+   → **IAM & Admin → Service Accounts → Create service account** (no roles
+   needed at the project level) → **Keys → Add key → Create new key → JSON**.
+   Download the JSON — it contains `client_email` and `private_key`.
+3. **Enable the Sheets API** for that project (APIs & Services → Library →
+   Google Sheets API → Enable).
+4. **Share the sheet** with the service account's `client_email` as
+   **Editor** — exactly like sharing with a person.
+5. **Set Cloudflare Pages environment variables** (Pages project → Settings
+   → Environment variables), or via `wrangler pages secret put <NAME>`:
+
+   | Name | Type | Value |
+   |---|---|---|
+   | `GOOGLE_SERVICE_ACCOUNT_EMAIL` | Secret | the JSON's `client_email` |
+   | `GOOGLE_SERVICE_ACCOUNT_KEY` | Secret | the JSON's `private_key`, `\n` kept literal |
+   | `GOOGLE_SHEET_ID` | Secret or plain | the sheet ID from step 1 |
+   | `GOOGLE_SHEET_TAB` | Plain (optional) | tab name, default `Subscribers` |
+
+   Set them for both the Production and Preview environments. Redeploy
+   after adding — Pages Functions only pick up env vars on the next build.
+6. **Never** commit the downloaded JSON key file, paste it into a prompt,
+   or put it in `.env`/`.env.example`. Delete the local download once the
+   values are in Cloudflare's secret store. Rotate (delete + recreate the
+   key in IAM) if it's ever exposed anywhere else.
+
+Until these are set, `/api/subscribe` returns `503` and the forms show
+"Something went wrong" — the site still builds and deploys fine either way.
 
 ---
 
